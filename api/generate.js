@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,7 +13,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // 안정적으로 작동하는 1.5-flash 모델을 사용합니다.
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     let prompt = '';
 
     if (type === 'weather') {
@@ -50,12 +52,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '올바르지 않은 요청 유형입니다.' });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-    });
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
 
-    return res.status(200).json({ result: response.text });
+    return res.status(200).json({ result: responseText });
   } catch (error) {
     console.error('API Error:', error);
     return res.status(500).json({ error: 'AI 분석 중 오류가 발생했습니다.' });
