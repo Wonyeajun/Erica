@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     // 가장 안정적으로 동작하는 gemini-1.5-flash 모델로 변경합니다.
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     let prompt = '';
 
     if (type === 'weather') {
