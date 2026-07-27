@@ -18,9 +18,9 @@ export default async function handler(req, res) {
     // 호환성 문제 방지를 위한 모델 지정
     let model;
     try {
-      model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     } catch (e) {
-      model = genAI.getGenerativeModel({ model: 'models/gemini-1.5-flash' });
+      model = genAI.getGenerativeModel({ model: 'models/gemini-3.1-flash-lite' });
     }
 
     let prompt = '';
