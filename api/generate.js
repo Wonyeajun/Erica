@@ -14,8 +14,8 @@ export default async function handler(req, res) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    // 안정적으로 작동하는 1.5-flash 모델을 사용합니다.
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // 최신 gemini-2.5-flash 모델 적용
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     let prompt = '';
 
     if (type === 'weather') {
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ result: responseText });
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ error: 'AI 분석 중 오류가 발생했습니다.' });
+    // 디버깅을 위해 에러 메세지를 정확히 반환합니다.
+    return res.status(500).json({ error: `AI 분석 실패: ${error.message || 'API 키 혹은 모델 설정을 확인해주세요.'}` });
   }
 }
