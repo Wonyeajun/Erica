@@ -29,21 +29,24 @@
     .tab-content { display: none; padding: 24px; }
     .tab-content.active { display: block; }
 
-    .form-group { margin-bottom: 16px; }
+    .form-group { margin-bottom: 8px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; color: var(--text-main); }
     input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
     input:focus, textarea:focus { border-color: var(--primary-color); }
     textarea { resize: vertical; min-height: 90px; }
+
+    /* 추가된 안내 문구 스타일 */
+    .info-tip { font-size: 0.8rem; color: #3b82f6; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
 
     button.submit-btn { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
     button.submit-btn:hover { background-color: var(--primary-hover); }
 
     .result-box { margin-top: 20px; padding: 18px; background-color: #f0f7ff; border-radius: 10px; border-left: 4px solid var(--primary-color); white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; display: none; }
     
-    /* 시각적 경로 안내 지도 박스 */
+    /* 지도 시각화 구역 */
     .map-container { margin-top: 16px; display: none; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
     .map-header { background: #1e293b; color: white; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-    #mapView { width: 100%; height: 260px; background-color: #e5e7eb; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 0.9rem; text-align: center; padding: 20px; }
+    #mapView { width: 100%; height: 240px; background-color: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #475569; font-size: 0.9rem; text-align: center; padding: 20px; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 600; margin-top: 16px; display: none; }
   </style>
@@ -52,22 +55,24 @@
 
   <header>
     <h1>🏃‍♂️ PaceAI</h1>
-    <p>스마트 러닝 경로 추천 & 맞춤 피드백</p>
+    <p>AI 기반 맞춤형 날씨 경로 추천 및 실시간 피드백</p>
   </header>
 
   <main class="container">
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-weather')">🌤️ 위치/날씨 추천</button>
+      <button class="tab-btn active" onclick="switchTab('tab-weather')">🌤️ 날씨 추천</button>
       <button class="tab-btn" onclick="switchTab('tab-score')">💯 점수 & 피드백</button>
       <button class="tab-btn" onclick="switchTab('tab-analysis')">📊 사후 분석</button>
     </div>
 
     <div id="tab-weather" class="tab-content active">
       <div class="form-group">
-        <label for="weatherInput">현재 위치 (상세주소 또는 지역명)</label>
-        <input type="text" id="weatherInput" placeholder="예: 안산시 상록구 한양대 에리카, 또는 안산시 상록구">
+        <label for="weatherInput">현재 날씨 및 지역 정보</label>
+        <input type="text" id="weatherInput" placeholder="예: 서울 여의도, 맑음, 기온 22도, 습도 40%">
       </div>
-      <button class="submit-btn" onclick="requestAI('weather')">최적 러닝 경로 찾기</button>
+      <p class="info-tip">💡 위치 정보가 정확할수록 제공되는 경로가 더 정확해집니다.</p>
+      
+      <button class="submit-btn" onclick="requestAI('weather')">맞춤 경로 추천받기</button>
     </div>
 
     <div id="tab-score" class="tab-content">
@@ -79,7 +84,7 @@
         <label for="scoreHealth">신체 정보 / 컨디션</label>
         <input type="text" id="scoreHealth" placeholder="예: 심박수 정상, 약간 피로함">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 16px;">
         <label for="scoreInput">오늘의 러닝 목표</label>
         <input type="text" id="scoreInput" placeholder="예: 5km 가볍게 조깅하기">
       </div>
@@ -87,23 +92,23 @@
     </div>
 
     <div id="tab-analysis" class="tab-content">
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 16px;">
         <label for="analysisInput">러닝 완료 기록 데이터</label>
         <textarea id="analysisInput" placeholder="예: 거리 7km, 시간 40분, 평균 페이스 5'42&quot;, 평균 심박수 155bpm"></textarea>
       </div>
       <button class="submit-btn" onclick="requestAI('analysis')">러닝 분석 리포트 생성</button>
     </div>
 
-    <div id="loading" class="loading">🏃 AI가 최적의 러닝 경로와 피드백을 계산 중입니다...</div>
+    <div id="loading" class="loading">🏃 AI가 러닝 데이터를 분석하고 있습니다...</div>
     
     <div id="mapContainer" class="map-container">
       <div class="map-header">
         <span>📍 PaceAI 경로 시각화 프리뷰</span>
-        <span style="font-size:0.75rem; color:#94a3b8;">N-Map Route Visualizer</span>
+        <span style="font-size:0.75rem; color:#94a3b8;">Route Preview</span>
       </div>
       <div id="mapView">
-        🗺️ [네이버 지도 경로 모듈]<br>
-        출발지 ➔ 최적 공원 ➔ 추천 트랙 경로 시각화 준비 완료
+        🗺️ <b>상세 경로 시각화 안내</b><br>
+        <span style="font-size:0.8rem; color:#64748b; margin-top:6px;">현재 위치에서 가장 러닝하기 좋은 공원/트랙으로의 이동 동선 및 코스가 추천되었습니다.</span>
       </div>
     </div>
 
@@ -162,7 +167,6 @@
           resultBox.innerText = data.result;
           resultBox.style.display = 'block';
 
-          // 위치 추천 요청인 경우 지도시각화 UI 활성화
           if (type === 'weather') {
             mapContainer.style.display = 'block';
           }
