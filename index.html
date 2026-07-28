@@ -345,37 +345,111 @@
       }
     }
 
-    async function fetchCurrentWeather() {
-      const doVal = document.getElementById('regionDo').value;
-      const cityVal = document.getElementById('regionCity').value;
-      const statusInput = document.getElementById('weatherStatus');
+    async function renderPathAndSpotMap(startName, spotName) {
+  const mapContainer = document.getElementById('mapContainer');
+  const mapView = document.getElementById('mapView');
+  const mapTitle = document.getElementById('mapTitle');
+  
+  mapContainer.style.display = 'block';
 
-      if (!doVal || !cityVal) {
-        return alert('도/특별시와 시/구를 먼저 모두 선택해 주세요!');
-      }
+  if (!window.kakao || !window.kakao.maps) {
+    mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다.</p>";
+    return;
+  }
 
-      statusInput.value = "⏳ 실시간 날씨 정보를 가져오는 중...";
+  const ps = new kakao.maps.services.Places();
 
-      try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'fetch_weather',
-            payload: { baseRegion: `${doVal} ${cityVal}`, cityVal }
-          })
+  if (!kakaoMap) {
+    kakaoMap = new kakao.maps.Map(mapView, {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 5
+    });
+  }
+
+  // 기존 마커 및 폴리라인 제거
+  if (startMarker) startMarker.setMap(null);
+  if (spotMarker) spotMarker.setMap(null);
+  if (routePolyline) routePolyline.setMap(null);
+
+  // 1. 출발지 장소 검색
+  ps.keywordSearch(startName, (startData, startStatus) => {
+    if (startStatus !== kakao.maps.services.Status.OK) {
+      // 출발지 검색 실패 시 추천 장소만 단일 표시
+      return renderSpotOnlyMap(spotName);
+    }
+
+    const startLat = parseFloat(startData[0].y);
+    const startLng = parseFloat(startData[0].x);
+    const startPos = new kakao.maps.LatLng(startLat, startLng);
+
+    // 2. 추천 러닝 장소 검색
+    ps.keywordSearch(spotName, async (spotData, spotStatus) => {
+      if (spotStatus === kakao.maps.services.Status.OK) {
+        const spotLat = parseFloat(spotData[0].y);
+        const spotLng = parseFloat(spotData[0].x);
+        const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
+
+        mapTitle.innerText = `🚩 출발지(${startName}) ➔ 📍 추천 장소(${spotName})`;
+
+        // 출발지 마커
+        startMarker = new kakao.maps.Marker({
+          position: startPos,
+          map: kakaoMap
         });
 
-        const data = await response.json();
-        if (response.ok && data.weatherStatus) {
-          statusInput.value = data.weatherStatus;
-        } else {
-          statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+        // 도착지 마커
+        spotMarker = new kakao.maps.Marker({
+          position: spotPos,
+          map: kakaoMap
+        });
+
+        // 카카오모빌리티 / 도보 길찾기 API를 통한 실제 도로 경로(Polyline) 그리기
+        try {
+          // 카카오모빌리티 자동차/도보 길찾기 REST API 호출 (서버 백엔드 거쳐 요청 권장)
+          const routeRes = await fetch(`/api/route?origin=${startLng},${startLat}&destination=${spotLng},${spotLat}`);
+          const routeData = await routeRes.json();
+
+          if (routeData.path) {
+            const linePath = routeData.path.map(pt => new kakao.maps.LatLng(pt.lat, pt.lng));
+            
+            routePolyline = new kakao.maps.Polyline({
+              path: linePath,
+              strokeWeight: 5,
+              strokeColor: '#3b82f6',
+              strokeOpacity: 0.8,
+              strokeStyle: 'solid'
+            });
+            routePolyline.setMap(kakaoMap);
+          } else {
+            // 경로 API 미설정 시 기본 직선 fallback
+            drawFallbackLine(startPos, spotPos);
+          }
+        } catch (e) {
+          drawFallbackLine(startPos, spotPos);
         }
-      } catch (e) {
-        statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+
+        // 두 지점이 모두 보이도록 지도 영역(Bounds) 재설정
+        const bounds = new kakao.maps.LatLngBounds();
+        bounds.extend(startPos);
+        bounds.extend(spotPos);
+        kakaoMap.setBounds(bounds);
+      } else {
+        alert('추천 장소를 지도에서 찾을 수 없습니다: ' + spotName);
       }
-    }
+    });
+  });
+}
+
+function drawFallbackLine(startPos, spotPos) {
+  routePolyline = new kakao.maps.Polyline({
+    path: [startPos, spotPos],
+    strokeWeight: 4,
+    strokeColor: '#3b82f6',
+    strokeOpacity: 0.7,
+    strokeStyle: 'dash'
+  });
+  routePolyline.setMap(kakaoMap);
+}
 
     function switchTab(evt, tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
