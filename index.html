@@ -79,7 +79,7 @@
     .select-row { display: flex; gap: 12px; }
     .select-row select { flex: 1; }
 
-    /* 🌤️ 날씨 카드 (요청하신 날씨 앱 이미지의 차콜/뮤트 블루 색감 반영) */
+    /* 🌤️ 날씨 카드 (뮤트 블루 톤) */
     .weather-card-box {
       background: linear-gradient(135deg, #4b6282 0%, #5a7395 50%, #7287a5 100%);
       border-radius: 16px;
@@ -151,6 +151,61 @@
     #mapView { width: 100%; height: 450px; background-color: #f1f5f9; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; margin-top: 24px; display: none; }
+
+    /* 💬 게시판 전용 스타일 */
+    .input-section {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .input-section textarea {
+      flex: 1;
+      height: 90px;
+    }
+    .input-section button {
+      width: 120px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .input-section button:hover {
+      background-color: var(--primary-hover);
+    }
+    .board-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .post-card {
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .post-content {
+      font-size: 1rem;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    .post-date {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+    .empty-msg {
+      text-align: center;
+      color: #94a3b8;
+      padding: 40px 0;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -165,6 +220,7 @@
       <button class="tab-btn active" onclick="switchTab(event, 'tab-weather')">🌤️ 날씨 & 경로 추천</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-score')">💯 점수 & 피드백</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-analysis')">📊 사후 분석</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-board')">💬 자유 게시판</button>
     </div>
 
     <div id="tab-weather" class="tab-content active">
@@ -236,6 +292,20 @@
         <textarea id="analysisInput" placeholder="예: 거리 7km, 시간 40분, 평균 페이스 5'42&quot;, 평균 심박수 155bpm"></textarea>
       </div>
       <button type="button" class="submit-btn" onclick="requestAI('analysis')">러닝 분석 리포트 생성</button>
+    </div>
+
+    <div id="tab-board" class="tab-content">
+      <div class="form-group">
+        <label>💬 러닝 소통 게시판</label>
+        <div class="input-section">
+          <textarea id="opinionInput" placeholder="러닝 후기나 의견을 자유롭게 남겨주세요..."></textarea>
+          <button id="submitBtn">등록</button>
+        </div>
+      </div>
+
+      <div id="boardList" class="board-list">
+        <div class="empty-msg">게시글을 불러오는 중입니다...</div>
+      </div>
     </div>
 
     <div id="loading" class="loading">🏃 AI가 러닝 데이터를 분석하고 있습니다...</div>
@@ -490,6 +560,118 @@
       } finally {
         loading.style.display = 'none';
       }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 전달해주신 Firebase 설정값 반영
+    const firebaseConfig = {
+      apiKey: "AIzaSyDx5LyUV4qwhSjyN0C5rKyBUdL9G9dVTkA",
+      authDomain: "erica-f612e.firebaseapp.com",
+      projectId: "erica-f612e",
+      storageBucket: "erica-f612e.firebasestorage.app",
+      messagingSenderId: "559496736323",
+      appId: "1:559496736323:web:2f92d9c1fcf0ec7c356ef6"
+    };
+
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const opinionInput = document.getElementById('opinionInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const boardList = document.getElementById('boardList');
+
+    const opinionsRef = collection(db, "opinions");
+
+    // 1. 등록 버튼 클릭 시 Firestore 저장
+    submitBtn.addEventListener('click', async () => {
+      const content = opinionInput.value.trim();
+
+      if (!content) {
+        alert('의견을 입력해 주세요!');
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerText = '등록 중...';
+
+        await addDoc(opinionsRef, {
+          content: content,
+          createdAt: serverTimestamp()
+        });
+
+        opinionInput.value = '';
+      } catch (error) {
+        console.error("의견 등록 실패:", error);
+        alert("등록 중 오류가 발생했습니다: " + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = '등록';
+      }
+    });
+
+    // 2. 최신순(createdAt desc) 실시간 데이터 수신 및 출력
+    const q = query(opinionsRef, orderBy("createdAt", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      boardList.innerHTML = '';
+
+      if (snapshot.empty) {
+        boardList.innerHTML = '<div class="empty-msg">등록된 의견이 없습니다. 첫 의견을 남겨보세요!</div>';
+        return;
+      }
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        
+        let dateString = '';
+        if (data.createdAt) {
+          const date = data.createdAt.toDate();
+          dateString = date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } else {
+          dateString = '방금 전';
+        }
+
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.innerHTML = `
+          <div class="post-content">${escapeHtml(data.content)}</div>
+          <div class="post-date">${dateString}</div>
+        `;
+
+        boardList.appendChild(postCard);
+      });
+    }, (error) => {
+      console.error("글 목록 불러오기 실패:", error);
+      boardList.innerHTML = '<div class="empty-msg" style="color: #ef4444;">목록을 불러오는 중 오류가 발생했습니다. (Firestore 규칙을 확인해주세요)</div>';
+    });
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
