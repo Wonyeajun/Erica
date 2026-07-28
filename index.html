@@ -11,64 +11,148 @@
     :root {
       --primary-color: #2563eb;
       --primary-hover: #1d4ed8;
-      --bg-color: #f8fafc;
+      --bg-color: #f1f5f9;
       --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-sub: #64748b;
-      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --border-color: #cbd5e1;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
-    header { text-align: center; margin-bottom: 24px; margin-top: 10px; }
-    header h1 { color: var(--primary-color); font-size: 2.2rem; margin-bottom: 6px; }
-    header p { color: var(--text-sub); font-size: 0.95rem; }
+    body { 
+      background-color: var(--bg-color); 
+      color: var(--text-main); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      min-height: 100vh; 
+      padding: 40px 20px; 
+    }
+    
+    header { text-align: center; margin-bottom: 32px; }
+    header h1 { color: var(--primary-color); font-size: 2.5rem; margin-bottom: 8px; font-weight: 800; }
+    header p { color: var(--text-sub); font-size: 1.1rem; }
 
-    .container { width: 100%; max-width: 650px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08); border: 1px solid var(--border-color); overflow: hidden; }
-    .tabs { display: flex; border-bottom: 1px solid var(--border-color); background-color: #eff6ff; }
-    .tab-btn { flex: 1; padding: 15px 10px; border: none; background: none; font-weight: 600; font-size: 0.9rem; color: var(--text-sub); cursor: pointer; transition: all 0.2s; }
-    .tab-btn.active { color: var(--primary-color); background-color: var(--card-bg); border-bottom: 3px solid var(--primary-color); }
-    .tab-content { display: none; padding: 24px; }
+    /* 전체 컨테이너 폭 확장 (650px -> 1024px) */
+    .container { 
+      width: 100%; 
+      max-width: 1024px; 
+      background: var(--card-bg); 
+      border-radius: 20px; 
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+      border: 1px solid var(--border-color); 
+      overflow: hidden; 
+    }
+
+    .tabs { display: flex; border-bottom: 1px solid var(--border-color); background-color: #f8fafc; }
+    .tab-btn { 
+      flex: 1; 
+      padding: 18px 12px; 
+      border: none; 
+      background: none; 
+      font-weight: 700; 
+      font-size: 1.05rem; 
+      color: var(--text-sub); 
+      cursor: pointer; 
+      transition: all 0.2s; 
+    }
+    .tab-btn.active { color: var(--primary-color); background-color: var(--card-bg); border-bottom: 4px solid var(--primary-color); }
+    
+    .tab-content { display: none; padding: 36px; }
     .tab-content.active { display: block; }
 
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; color: var(--text-main); }
-    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; background-color: white; }
+    .form-group { margin-bottom: 22px; }
+    label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; color: var(--text-main); }
+    input, select, textarea { 
+      width: 100%; 
+      padding: 14px 16px; 
+      border: 1px solid var(--border-color); 
+      border-radius: 10px; 
+      font-size: 1rem; 
+      outline: none; 
+      background-color: white; 
+      transition: border-color 0.2s;
+    }
     input:focus, select:focus, textarea:focus { border-color: var(--primary-color); }
-    textarea { resize: vertical; min-height: 90px; }
+    textarea { resize: vertical; min-height: 120px; }
 
-    .select-row { display: flex; gap: 8px; }
+    .select-row { display: flex; gap: 12px; }
     .select-row select { flex: 1; }
 
+    /* 🌤️ 날씨 위젯 스타일 (첨부한 이미지의 블루 그라데이션 디자인) */
+    .weather-card-box {
+      background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+      border-radius: 16px;
+      padding: 24px;
+      color: white;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    }
+    .weather-card-box label { color: #eff6ff; font-size: 1.05rem; }
+    
     .weather-fetch-btn {
       width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      background-color: #e0f2fe;
-      color: #0369a1;
-      border: 1px solid #bae6fd;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.88rem;
+      padding: 12px;
+      margin-top: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
       cursor: pointer;
+      backdrop-filter: blur(5px);
       transition: all 0.2s;
     }
-    .weather-fetch-btn:hover { background-color: #bae6fd; }
+    .weather-fetch-btn:hover {
+      background-color: rgba(255, 255, 255, 0.35);
+    }
 
-    .info-tip { font-size: 0.8rem; color: #3b82f6; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
+    .weather-output-input {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .weather-output-input::placeholder { color: #dbeafe; }
 
-    button.submit-btn { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    .info-tip { font-size: 0.9rem; color: #2563eb; margin-bottom: 24px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+
+    button.submit-btn { 
+      width: 100%; 
+      padding: 16px; 
+      background-color: var(--primary-color); 
+      color: white; 
+      border: none; 
+      border-radius: 12px; 
+      font-size: 1.1rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: background-color 0.2s, transform 0.1s; 
+    }
     button.submit-btn:hover { background-color: var(--primary-hover); }
+    button.submit-btn:active { transform: scale(0.99); }
 
-    .result-box { margin-top: 20px; padding: 18px; background-color: #f0f7ff; border-radius: 10px; border-left: 4px solid var(--primary-color); white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; display: none; }
+    .result-box { 
+      margin-top: 28px; 
+      padding: 24px; 
+      background-color: #eff6ff; 
+      border-radius: 12px; 
+      border-left: 6px solid var(--primary-color); 
+      white-space: pre-wrap; 
+      line-height: 1.7; 
+      font-size: 1.05rem; 
+      display: none; 
+    }
     
-    /* 실제 카카오 지도 스타일 */
-    .map-container { margin-top: 16px; display: none; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-    .map-header { background: #1e293b; color: white; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-    #mapView { width: 100%; height: 350px; background-color: #f1f5f9; }
+    /* 지도 높이 및 크기 확장 */
+    .map-container { margin-top: 24px; display: none; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .map-header { background: #0f172a; color: white; padding: 14px 20px; font-size: 0.95rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    #mapView { width: 100%; height: 450px; background-color: #f1f5f9; }
 
-    .loading { text-align: center; color: var(--primary-color); font-weight: 600; margin-top: 16px; display: none; }
+    .loading { text-align: center; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; margin-top: 24px; display: none; }
   </style>
 </head>
 <body>
@@ -86,33 +170,35 @@
     </div>
 
     <div id="tab-weather" class="tab-content active">
-      <div class="form-group">
-        <label>지역 선택</label>
-        <div class="select-row">
-          <select id="regionDo" onchange="updateCitySelect()">
-            <option value="">도/특별시 선택</option>
-            <option value="서울특별시">서울특별시</option>
-            <option value="경기도">경기도</option>
-            <option value="인천광역시">인천광역시</option>
-            <option value="강원특별자치도">강원특별자치도</option>
-            <option value="충청북도">충청북도</option>
-            <option value="충청남도">충청남도</option>
-            <option value="전북특별자치도">전북특별자치도</option>
-            <option value="전라남도">전라남도</option>
-            <option value="경상북도">경상북도</option>
-            <option value="경상남도">경상남도</option>
-            <option value="제주특별자치도">제주특별자치도</option>
-          </select>
-          <select id="regionCity">
-            <option value="">시/구 선택</option>
-          </select>
+      <div class="weather-card-box">
+        <div class="form-group">
+          <label>지역 선택</label>
+          <div class="select-row">
+            <select id="regionDo" onchange="updateCitySelect()">
+              <option value="">도/특별시 선택</option>
+              <option value="서울특별시">서울특별시</option>
+              <option value="경기도">경기도</option>
+              <option value="인천광역시">인천광역시</option>
+              <option value="강원특별자치도">강원특별자치도</option>
+              <option value="충청북도">충청북도</option>
+              <option value="충청남도">충청남도</option>
+              <option value="전북특별자치도">전북특별자치도</option>
+              <option value="전라남도">전라남도</option>
+              <option value="경상북도">경상북도</option>
+              <option value="경상남도">경상남도</option>
+              <option value="제주특별자치도">제주특별자치도</option>
+            </select>
+            <select id="regionCity">
+              <option value="">시/구 선택</option>
+            </select>
+          </div>
+          <button type="button" class="weather-fetch-btn" onclick="fetchCurrentWeather()">🌤️ 선택 지역 실시간 날씨 불러오기</button>
         </div>
-        <button type="button" class="weather-fetch-btn" onclick="fetchCurrentWeather()">🌤️ 선택 지역 실시간 날씨 불러오기</button>
-      </div>
 
-      <div class="form-group">
-        <label for="weatherStatus">조회된 날씨 정보</label>
-        <input type="text" id="weatherStatus" placeholder="위에서 지역 선택 후 [날씨 불러오기]를 눌러주세요" readonly>
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="weatherStatus">조회된 날씨 정보</label>
+          <input type="text" id="weatherStatus" class="weather-output-input" placeholder="위에서 지역 선택 후 [날씨 불러오기]를 눌러주세요" readonly>
+        </div>
       </div>
 
       <div class="form-group">
@@ -139,7 +225,7 @@
         <label for="scoreHealth">신체 정보 / 컨디션</label>
         <input type="text" id="scoreHealth" placeholder="예: 심박수 정상, 약간 피로함">
       </div>
-      <div class="form-group" style="margin-bottom: 16px;">
+      <div class="form-group" style="margin-bottom: 24px;">
         <label for="scoreInput">오늘의 러닝 목표</label>
         <input type="text" id="scoreInput" placeholder="예: 5km 가볍게 조깅하기">
       </div>
@@ -147,7 +233,7 @@
     </div>
 
     <div id="tab-analysis" class="tab-content">
-      <div class="form-group" style="margin-bottom: 16px;">
+      <div class="form-group" style="margin-bottom: 24px;">
         <label for="analysisInput">러닝 완료 기록 데이터</label>
         <textarea id="analysisInput" placeholder="예: 거리 7km, 시간 40분, 평균 페이스 5'42&quot;, 평균 심박수 155bpm"></textarea>
       </div>
@@ -159,7 +245,7 @@
     <div id="mapContainer" class="map-container">
       <div class="map-header">
         <span id="mapTitle">📍 RunningMate 카카오 지도 세부 경로</span>
-        <span style="font-size:0.75rem; color:#94a3b8;">Kakao Map API</span>
+        <span style="font-size:0.8rem; color:#94a3b8;">Kakao Map API</span>
       </div>
       <div id="mapView"></div>
     </div>
@@ -246,7 +332,6 @@
       document.getElementById('mapContainer').style.display = 'none';
     }
 
-    // 기존 지도 마커 및 연결선 초기화
     function clearMap() {
       mapMarkers.forEach(marker => marker.setMap(null));
       mapMarkers = [];
@@ -256,7 +341,6 @@
       }
     }
 
-    // 카카오 지도 시각화 엔진 (원래 버전)
     function renderKakaoMap(startQuery, spotName) {
       const mapContainer = document.getElementById('mapContainer');
       const mapView = document.getElementById('mapView');
@@ -280,7 +364,6 @@
 
       clearMap();
 
-      // [상황 A]: 출발지 주소가 존재할 때 ➔ 출발지에서 목적지까지 동선 연결
       if (startQuery && startQuery.length > 0) {
         mapTitle.innerText = "📍 [이동 길찾기 + 코스] 출발지 ➔ 추천 러닝장소";
 
@@ -290,22 +373,18 @@
             const startLng = startData[0].x;
             const startPos = new kakao.maps.LatLng(startLat, startLng);
 
-            // 출발지 마커
             const startMarker = new kakao.maps.Marker({ position: startPos, map: kakaoMap });
             mapMarkers.push(startMarker);
 
-            // 목적지 검색
             ps.keywordSearch(spotName, (spotData, status2) => {
               if (status2 === kakao.maps.services.Status.OK) {
                 const spotLat = spotData[0].y;
                 const spotLng = spotData[0].x;
                 const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
 
-                // 목적지 마커
                 const spotMarker = new kakao.maps.Marker({ position: spotPos, map: kakaoMap });
                 mapMarkers.push(spotMarker);
 
-                // 출발지 - 목적지 이동 동선 (Polyline)
                 mapPolyline = new kakao.maps.Polyline({
                   path: [startPos, spotPos],
                   strokeWeight: 5,
@@ -315,7 +394,6 @@
                 });
                 mapPolyline.setMap(kakaoMap);
 
-                // 두 지점이 모두 보이도록 지도 범위 재조정
                 const bounds = new kakao.maps.LatLngBounds();
                 bounds.extend(startPos);
                 bounds.extend(spotPos);
@@ -329,7 +407,6 @@
           }
         });
       } else {
-        // [상황 B]: 이미 러닝 장소에 있거나 세부 위치가 없는 경우 ➔ 단일 시각화
         mapTitle.innerText = "📍 [러닝 코스 지도] 추천 러닝 장소";
         renderSingleSpot(ps, spotName);
       }
@@ -403,7 +480,6 @@
           resultBox.innerText = data.result;
           resultBox.style.display = 'block';
 
-          // 카카오 지도 시각화 트리거
           if (type === 'weather' && data.spotName) {
             const startQuery = payload.detailLocation ? `${payload.baseRegion} ${payload.detailLocation}` : '';
             renderKakaoMap(startQuery, data.spotName);
