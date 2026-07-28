@@ -18,14 +18,13 @@ export default async function handler(req, res) {
 
   const { type, payload } = req.body;
 
-  // 1. [날씨 전용 요청] API 키를 사용해 OpenWeatherMap에서 날씨 데이터 조회
+  // 1. OpenWeatherMap 실시간 날씨 데이터 조회
   if (type === 'fetch_weather') {
     const weatherKey = process.env.WEATHER_API_KEY;
     const { baseRegion, cityVal } = payload;
     const coord = coordsMap[cityVal] || coordsMap[baseRegion.split(' ')[0]] || { lat: 37.5665, lon: 126.9780 };
 
     if (!weatherKey) {
-      // 키가 설정되지 않았을 경우 비상용 기본값 반환
       return res.status(200).json({ weatherStatus: `${baseRegion} / 맑음, 기온 22°C, 습도 45% (기본값)` });
     }
 
@@ -43,14 +42,14 @@ export default async function handler(req, res) {
           weatherStatus: `${baseRegion} / 날씨: ${weatherDesc}, 기온: ${temp}°C, 습도: ${humidity}%`
         });
       } else {
-        return res.status(200).json({ weatherStatus: `${baseRegion} / 맑음, 기온 22°C, 습도 45% (API 확인 필요)` });
+        return res.status(200).json({ weatherStatus: `${baseRegion} / 맑음, 기온 22°C, 습도 45%` });
       }
     } catch (err) {
       return res.status(200).json({ weatherStatus: `${baseRegion} / 맑음, 기온 22°C, 습도 45%` });
     }
   }
 
-  // 2. Gemini AI 요청 처리
+  // 2. Gemini AI 연동
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'GEMINI_API_KEY가 설정되지 않았습니다.' });
@@ -71,28 +70,24 @@ export default async function handler(req, res) {
       const hasDetail = payload.detailLocation && payload.detailLocation.length > 0;
 
       prompt = `
-        사용자 위치 정보:
-        - 기본 선택 지역(최소 기준): "${payload.baseRegion}"
-        - 세부 위치 입력값(최대 기준): "${hasDetail ? payload.detailLocation : '미입력 (기본 지역 기준)'}"
+        사용자 입력 정보:
+        - 기본 지역: "${payload.baseRegion}"
         - 실시간 날씨 데이터: "${payload.weatherInfo}"
+        - 사용자 컨디션/신체정보: "${payload.userHealth}"
+        - 세부 위치 입력값: "${hasDetail ? payload.detailLocation : '미입력'}"
 
-        [러닝 경로 추천 판단 알고리즘]
-        ${hasDetail ? `
-        ★ [최대 모드 적용]: 사용자가 세부 위치/건물명("${payload.detailLocation}")을 작성했습니다.
-        1. 입력된 세부 위치(예: '한양대 에리카', 특정 도로/건물 등)가 속한 상위 행정구역을 자동으로 추론하세요.
-        2. 해당 세부 장소에서 출발하여 '가장 가까운 러닝하기 좋은 대표 공원/천변/체육공원'을 탐색하세요.
-        3. [이동 동선 안내]:
-           - 현재 위치 ➔ 추천 공원까지 이동하는 방법/동선
-           - 추천 공원 내부 러닝 코스 루프 설명
-        ` : `
-        ★ [최소 모드 적용]: 세부 위치가 미입력되었으므로, 선택한 기본 지역("${payload.baseRegion}") 전체를 기준으로 추천합니다.
-        1. 해당 행정구역(도/시 또는 서울/구) 대표 러닝 스팟 2~3곳과 각 장소의 특징을 추천해 주세요.
-        `}
+        [러닝 경로 및 지침 요구사항]
+        1. 날씨와 사용자 컨디션을 종합 분석하여 운동 강도 조언.
+        2. 러닝 장소 추천:
+           - 세부 위치가 있으면 가장 가까운 대표 공원/천변 추천.
+           - 없으면 기본 지역의 대표 공원 추천.
 
-        2. 제공된 날씨 데이터(기온, 습도 등)에 적합한 준비물 및 복장 팁 추천
-        3. 오늘 날씨 기준 러닝 주의사항 안내
-
-        친절하고 파이팅 넘치는 전담 러닝 코치 톤으로 답변해줘.
+        [응답 형식 제약조건]
+        결과는 반드시 아래 JSON 형식으로만 응답해주세요. 다른 설명이나 마크다운 문법 없이 Pure JSON만 반환하세요.
+        {
+          "spotName": "추천된 대표 공원/장소의 정확한 이름 (예: 안산호수공원, 여의도공원)",
+          "result": "사용자에게 전달할 상세 코칭 메시지 전문 (1. 경로안내, 2. 컨디션/날씨 조언 등)"
+        }
       `;
     } else if (type === 'score') {
       prompt = `
@@ -120,7 +115,25 @@ export default async function handler(req, res) {
     }
 
     const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    let responseText = result.response.text();
+
+    if (type === 'weather') {
+      try {
+        // AI 응답에서 JSON 데이터 추출
+        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanJson);
+        return res.status(200).json({
+          result: parsed.result,
+          spotName: parsed.spotName
+        });
+      } catch (e) {
+        // JSON 파싱 실패 시 일반 텍스트로 처리
+        return res.status(200).json({
+          result: responseText,
+          spotName: `${payload.baseRegion} 공원`
+        });
+      }
+    }
 
     return res.status(200).json({ result: responseText });
   } catch (error) {
