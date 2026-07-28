@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PaceAI - 스마트 러닝 파트너</title>
+  <title>RunningMate - 스마트 러닝 파트너</title>
   <style>
     :root {
       --primary-color: #2563eb;
@@ -29,13 +29,30 @@
     .tab-content { display: none; padding: 24px; }
     .tab-content.active { display: block; }
 
-    .form-group { margin-bottom: 8px; }
+    .form-group { margin-bottom: 14px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; color: var(--text-main); }
-    input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
-    input:focus, textarea:focus { border-color: var(--primary-color); }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; background-color: white; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary-color); }
     textarea { resize: vertical; min-height: 90px; }
 
-    /* 추가된 안내 문구 스타일 */
+    .select-row { display: flex; gap: 8px; }
+    .select-row select { flex: 1; }
+
+    .weather-fetch-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      background-color: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .weather-fetch-btn:hover { background-color: #bae6fd; }
+
     .info-tip { font-size: 0.8rem; color: #3b82f6; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
 
     button.submit-btn { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
@@ -43,10 +60,9 @@
 
     .result-box { margin-top: 20px; padding: 18px; background-color: #f0f7ff; border-radius: 10px; border-left: 4px solid var(--primary-color); white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; display: none; }
     
-    /* 지도 시각화 구역 */
     .map-container { margin-top: 16px; display: none; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
     .map-header { background: #1e293b; color: white; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-    #mapView { width: 100%; height: 240px; background-color: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #475569; font-size: 0.9rem; text-align: center; padding: 20px; }
+    #mapView { width: 100%; height: 200px; background-color: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #475569; font-size: 0.9rem; text-align: center; padding: 20px; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 600; margin-top: 16px; display: none; }
   </style>
@@ -54,25 +70,55 @@
 <body>
 
   <header>
-    <h1>🏃‍♂️ PaceAI</h1>
+    <h1>🏃‍♂️ RunningMate</h1>
     <p>AI 기반 맞춤형 날씨 경로 추천 및 실시간 피드백</p>
   </header>
 
   <main class="container">
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-weather')">🌤️ 날씨 추천</button>
-      <button class="tab-btn" onclick="switchTab('tab-score')">💯 점수 & 피드백</button>
-      <button class="tab-btn" onclick="switchTab('tab-analysis')">📊 사후 분석</button>
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-weather')">🌤️ 날씨 & 경로 추천</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-score')">💯 점수 & 피드백</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-analysis')">📊 사후 분석</button>
     </div>
 
     <div id="tab-weather" class="tab-content active">
       <div class="form-group">
-        <label for="weatherInput">현재 날씨 및 지역 정보</label>
-        <input type="text" id="weatherInput" placeholder="예: 서울 여의도, 맑음, 기온 22도, 습도 40%">
+        <label>지역 선택 (최소 기준)</label>
+        <div class="select-row">
+          <select id="regionDo" onchange="updateCitySelect()">
+            <option value="">도/특별시 선택</option>
+            <option value="서울특별시">서울특별시</option>
+            <option value="경기도">경기도</option>
+            <option value="인천광역시">인천광역시</option>
+            <option value="강원특별자치도">강원특별자치도</option>
+            <option value="충청북도">충청북도</option>
+            <option value="충청남도">충청남도</option>
+            <option value="전북특별자치도">전북특별자치도</option>
+            <option value="전라남도">전라남도</option>
+            <option value="경상북도">경상북도</option>
+            <option value="경상남도">경상남도</option>
+            <option value="제주특별자치도">제주특별자치도</option>
+          </select>
+          <select id="regionCity">
+            <option value="">시/구 선택</option>
+          </select>
+        </div>
+        <button type="button" class="weather-fetch-btn" onclick="fetchCurrentWeather()">🌤️ 선택 지역 실시간 날씨 불러오기</button>
       </div>
-      <p class="info-tip">💡 위치 정보가 정확할수록 제공되는 경로가 더 정확해집니다.</p>
+
+      <div class="form-group">
+        <label for="weatherStatus">조회된 날씨 정보</label>
+        <input type="text" id="weatherStatus" placeholder="위에서 지역 선택 후 [날씨 불러오기]를 눌러주세요" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="detailLocation">상세 위치 입력 (선택 사항 - 최대 모드)</label>
+        <input type="text" id="detailLocation" placeholder="예: 한양대 에리카, 부천시 중동, 여의도공원 2번 출구">
+      </div>
       
-      <button class="submit-btn" onclick="requestAI('weather')">맞춤 경로 추천받기</button>
+      <p class="info-tip">💡 위치 정보가 정확할수록 더욱 상세한 맞춤 이동 경로가 제공됩니다.</p>
+      
+      <button type="button" class="submit-btn" onclick="requestAI('weather')">맞춤 경로 추천받기</button>
     </div>
 
     <div id="tab-score" class="tab-content">
@@ -88,7 +134,7 @@
         <label for="scoreInput">오늘의 러닝 목표</label>
         <input type="text" id="scoreInput" placeholder="예: 5km 가볍게 조깅하기">
       </div>
-      <button class="submit-btn" onclick="requestAI('score')">점수 & 피드백 측정하기</button>
+      <button type="button" class="submit-btn" onclick="requestAI('score')">점수 & 피드백 측정하기</button>
     </div>
 
     <div id="tab-analysis" class="tab-content">
@@ -96,19 +142,19 @@
         <label for="analysisInput">러닝 완료 기록 데이터</label>
         <textarea id="analysisInput" placeholder="예: 거리 7km, 시간 40분, 평균 페이스 5'42&quot;, 평균 심박수 155bpm"></textarea>
       </div>
-      <button class="submit-btn" onclick="requestAI('analysis')">러닝 분석 리포트 생성</button>
+      <button type="button" class="submit-btn" onclick="requestAI('analysis')">러닝 분석 리포트 생성</button>
     </div>
 
     <div id="loading" class="loading">🏃 AI가 러닝 데이터를 분석하고 있습니다...</div>
     
     <div id="mapContainer" class="map-container">
       <div class="map-header">
-        <span>📍 PaceAI 경로 시각화 프리뷰</span>
+        <span>📍 RunningMate 경로 시각화 안내</span>
         <span style="font-size:0.75rem; color:#94a3b8;">Route Preview</span>
       </div>
       <div id="mapView">
-        🗺️ <b>상세 경로 시각화 안내</b><br>
-        <span style="font-size:0.8rem; color:#64748b; margin-top:6px;">현재 위치에서 가장 러닝하기 좋은 공원/트랙으로의 이동 동선 및 코스가 추천되었습니다.</span>
+        🗺️ <b>상세 경로 안내</b><br>
+        <span style="font-size:0.8rem; color:#64748b; margin-top:6px;">추천된 코스와 이동 동선 데이터가 생성되었습니다.</span>
       </div>
     </div>
 
@@ -116,49 +162,113 @@
   </main>
 
   <script>
-    function switchTab(tabId) {
+    // 시/구 데이터 매핑 (서울: 구, 타 지역: 시/군)
+    const cityData = {
+      "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+      "경기도": ["수원시", "성남시", "고양시", "용인시", "부천시", "안산시", "남양주시", "안양시", "화성시", "평택시", "의정부시", "파주시", "시흥시", "김포시", "광명시", "광주시", "군포시", "이천시", "오산시", "하남시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"],
+      "인천광역시": ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"],
+      "강원특별자치도": ["춘천시", "원주시", "강릉시", "동해시", "태백시", "속초시", "삼척시"],
+      "충청북도": ["청주시", "충주시", "제천시"],
+      "충청남도": ["천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "당진시"],
+      "전북특별자치도": ["전주시", "군산시", "익산시", "정읍시", "남원시", "김제시"],
+      "전라남도": ["목포시", "여수시", "순천시", "나주시", "광양시"],
+      "경상북도": ["포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시", "문경시", "경산시"],
+      "경상남도": ["창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시"],
+      "제주특별자치도": ["제주시", "서귀포시"]
+    };
+
+    function updateCitySelect() {
+      const doSelect = document.getElementById('regionDo').value;
+      const citySelect = document.getElementById('regionCity');
+      citySelect.innerHTML = '<option value="">시/구 선택</option>';
+
+      if (doSelect && cityData[doSelect]) {
+        cityData[doSelect].forEach(city => {
+          const opt = document.createElement('option');
+          opt.value = city;
+          opt.innerText = city;
+          citySelect.appendChild(opt);
+        });
+      }
+    }
+
+    async function fetchCurrentWeather() {
+      const doVal = document.getElementById('regionDo').value;
+      const cityVal = document.getElementById('regionCity').value;
+      const statusInput = document.getElementById('weatherStatus');
+
+      if (!doVal || !cityVal) {
+        return alert('도/특별시와 시/구를 먼저 모두 선택해 주세요!');
+      }
+
+      statusInput.value = "⏳ 실시간 날씨 정보를 가져오는 중...";
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'fetch_weather',
+            payload: { baseRegion: `${doVal} ${cityVal}`, cityVal }
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.weatherStatus) {
+          statusInput.value = data.weatherStatus;
+        } else {
+          statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+        }
+      } catch (e) {
+        statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+      }
+    }
+
+    function switchTab(evt, tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       
       document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
+      if (evt && evt.target) {
+        evt.target.classList.add('active');
+      }
       
       document.getElementById('result').style.display = 'none';
       document.getElementById('mapContainer').style.display = 'none';
     }
 
-    async function fetchCurrentWeather() {
-  const doVal = document.getElementById('regionDo').value;
-  const cityVal = document.getElementById('regionCity').value;
-  const statusInput = document.getElementById('weatherStatus');
+    async function requestAI(type) {
+      const loading = document.getElementById('loading');
+      const resultBox = document.getElementById('result');
+      const mapContainer = document.getElementById('mapContainer');
+      
+      let payload = {};
 
-  if (!doVal || !cityVal) {
-    return alert('도/특별시와 시/구를 먼저 모두 선택해 주세요!');
-  }
+      if (type === 'weather') {
+        const doVal = document.getElementById('regionDo').value;
+        const cityVal = document.getElementById('regionCity').value;
+        const weatherStatus = document.getElementById('weatherStatus').value;
+        const detailLocation = document.getElementById('detailLocation').value;
 
-  statusInput.value = "⏳ 실시간 날씨 정보를 가져오는 중...";
+        if (!doVal || !cityVal) return alert('최소 지역(도/시 또는 서울/구)을 선택해 주세요!');
+        if (!weatherStatus) return alert('[실시간 날씨 불러오기] 버튼을 눌러 날씨를 조회해 주세요!');
 
-  try {
-    // Vercel 서버리스 함수를 통해 OpenWeatherMap API 안전하게 호출
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'fetch_weather',
-        payload: { baseRegion: `${doVal} ${cityVal}`, cityVal }
-      })
-    });
-
-    const data = await response.json();
-    if (response.ok && data.weatherStatus) {
-      statusInput.value = data.weatherStatus;
-    } else {
-      statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
-    }
-  } catch (e) {
-    statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
-  }
-}
+        payload = {
+          baseRegion: `${doVal} ${cityVal}`,
+          detailLocation: detailLocation.trim(),
+          weatherInfo: weatherStatus
+        };
+      } else if (type === 'score') {
+        const weather = document.getElementById('scoreWeather').value;
+        const healthInfo = document.getElementById('scoreHealth').value;
+        const scoreInput = document.getElementById('scoreInput').value;
+        if (!weather || !healthInfo || !scoreInput) return alert('모든 정보 항목을 입력해주세요!');
+        payload = { weather, healthInfo, scoreInput };
+      } else if (type === 'analysis') {
+        const analysisInput = document.getElementById('analysisInput').value;
+        if (!analysisInput) return alert('러닝 기록을 입력해주세요!');
+        payload = { analysisInput };
+      }
 
       loading.style.display = 'block';
       resultBox.style.display = 'none';
