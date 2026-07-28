@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RunningMate - 스마트 러닝 파트너</title>
+  
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c71f6160a3bd7723787c2297571702f9&libraries=services"></script>
+
   <style>
     :root {
       --primary-color: #2563eb;
@@ -60,9 +63,10 @@
 
     .result-box { margin-top: 20px; padding: 18px; background-color: #f0f7ff; border-radius: 10px; border-left: 4px solid var(--primary-color); white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; display: none; }
     
+    /* 실제 카카오 지도 스타일 */
     .map-container { margin-top: 16px; display: none; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
     .map-header { background: #1e293b; color: white; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-    #mapView { width: 100%; height: 200px; background-color: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #475569; font-size: 0.9rem; text-align: center; padding: 20px; }
+    #mapView { width: 100%; height: 350px; background-color: #f1f5f9; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 600; margin-top: 16px; display: none; }
   </style>
@@ -154,20 +158,20 @@
     
     <div id="mapContainer" class="map-container">
       <div class="map-header">
-        <span>📍 RunningMate 경로 시각화 안내</span>
-        <span style="font-size:0.75rem; color:#94a3b8;">Route Preview</span>
+        <span id="mapTitle">📍 RunningMate 카카오 지도 세부 경로</span>
+        <span style="font-size:0.75rem; color:#94a3b8;">Kakao Map API</span>
       </div>
-      <div id="mapView">
-        🗺️ <b>상세 경로 안내</b><br>
-        <span style="font-size:0.8rem; color:#64748b; margin-top:6px;">추천된 코스와 이동 동선 데이터가 생성되었습니다.</span>
-      </div>
+      <div id="mapView"></div>
     </div>
 
     <div id="result" class="result-box"></div>
   </main>
 
   <script>
-    // 시/구 데이터 매핑 (서울: 구, 타 지역: 시/군)
+    let kakaoMap = null;
+    let mapMarkers = [];
+    let mapPolyline = null;
+
     const cityData = {
       "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
       "경기도": ["수원시", "성남시", "고양시", "용인시", "부천시", "안산시", "남양주시", "안양시", "화성시", "평택시", "의정부시", "파주시", "시흥시", "김포시", "광명시", "광주시", "군포시", "이천시", "오산시", "하남시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"],
@@ -242,6 +246,111 @@
       document.getElementById('mapContainer').style.display = 'none';
     }
 
+    // 기존 지도 마커 및 연결선 초기화
+    function clearMap() {
+      mapMarkers.forEach(marker => marker.setMap(null));
+      mapMarkers = [];
+      if (mapPolyline) {
+        mapPolyline.setMap(null);
+        mapPolyline = null;
+      }
+    }
+
+    // 카카오 지도 시각화 엔진
+    function renderKakaoMap(startQuery, spotName) {
+      const mapContainer = document.getElementById('mapContainer');
+      const mapView = document.getElementById('mapView');
+      const mapTitle = document.getElementById('mapTitle');
+      
+      mapContainer.style.display = 'block';
+
+      if (!window.kakao || !window.kakao.maps) {
+        mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다. 키 및 플랫폼 등록을 확인해주세요.</p>";
+        return;
+      }
+
+      const ps = new kakao.maps.services.Places();
+
+      if (!kakaoMap) {
+        kakaoMap = new kakao.maps.Map(mapView, {
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
+          level: 4
+        });
+      }
+
+      clearMap();
+
+      // [상황 A]: 현재 위치와 추천 장소가 다른 경우 ➔ 출발지에서 목적지까지 동선 연결
+      if (startQuery && startQuery.length > 0) {
+        mapTitle.innerText = "📍 [이동 길찾기 + 코스] 출발지 ➔ 추천 러닝장소";
+
+        ps.keywordSearch(startQuery, (startData, status1) => {
+          if (status1 === kakao.maps.services.Status.OK) {
+            const startLat = startData[0].y;
+            const startLng = startData[0].x;
+            const startPos = new kakao.maps.LatLng(startLat, startLng);
+
+            // 출발지 마커
+            const startMarker = new kakao.maps.Marker({ position: startPos, map: kakaoMap });
+            mapMarkers.push(startMarker);
+
+            // 목적지 검색
+            ps.keywordSearch(spotName, (spotData, status2) => {
+              if (status2 === kakao.maps.services.Status.OK) {
+                const spotLat = spotData[0].y;
+                const spotLng = spotData[0].x;
+                const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
+
+                // 목적지 마커
+                const spotMarker = new kakao.maps.Marker({ position: spotPos, map: kakaoMap });
+                mapMarkers.push(spotMarker);
+
+                // 출발지 - 목적지 이동 동선 (Polyline)
+                mapPolyline = new kakao.maps.Polyline({
+                  path: [startPos, spotPos],
+                  strokeWeight: 5,
+                  strokeColor: '#2563eb',
+                  strokeOpacity: 0.8,
+                  strokeStyle: 'solid'
+                });
+                mapPolyline.setMap(kakaoMap);
+
+                // 두 지점이 모두 보이도록 지도 범위 재조정
+                const bounds = new kakao.maps.LatLngBounds();
+                bounds.extend(startPos);
+                bounds.extend(spotPos);
+                kakaoMap.setBounds(bounds);
+              } else {
+                kakaoMap.setCenter(startPos);
+              }
+            });
+          } else {
+            renderSingleSpot(ps, spotName);
+          }
+        });
+      } else {
+        // [상황 B]: 이미 러닝 장소에 있거나 세부 위치가 없는 경우 ➔ 단일 시각화
+        mapTitle.innerText = "📍 [러닝 코스 지도] 추천 러닝 장소";
+        renderSingleSpot(ps, spotName);
+      }
+    }
+
+    function renderSingleSpot(ps, spotName) {
+      ps.keywordSearch(spotName, (data, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          const lat = data[0].y;
+          const lng = data[0].x;
+          const pos = new kakao.maps.LatLng(lat, lng);
+
+          const marker = new kakao.maps.Marker({ position: pos, map: kakaoMap });
+          mapMarkers.push(marker);
+
+          kakaoMap.setCenter(pos);
+          kakaoMap.setLevel(4);
+        }
+      });
+    }
+
     async function requestAI(type) {
       const loading = document.getElementById('loading');
       const resultBox = document.getElementById('result');
@@ -294,8 +403,10 @@
           resultBox.innerText = data.result;
           resultBox.style.display = 'block';
 
-          if (type === 'weather') {
-            mapContainer.style.display = 'block';
+          // 카카오 지도 시각화 트리거
+          if (type === 'weather' && data.spotName) {
+            const startQuery = payload.detailLocation ? `${payload.baseRegion} ${payload.detailLocation}` : '';
+            renderKakaoMap(startQuery, data.spotName);
           }
         } else {
           alert(data.error || '오류가 발생했습니다.');
