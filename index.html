@@ -117,10 +117,8 @@
 
     .info-tip { font-size: 0.9rem; color: var(--primary-color); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
 
-    .btn-group { display: flex; gap: 12px; }
-
     button.submit-btn { 
-      flex: 2; 
+      width: 100%; 
       padding: 16px; 
       background-color: var(--primary-color); 
       color: white; 
@@ -133,21 +131,6 @@
     }
     button.submit-btn:hover { background-color: var(--primary-hover); }
     button.submit-btn:active { transform: scale(0.99); }
-
-    button.re-recommend-btn { 
-      flex: 1; 
-      padding: 16px; 
-      background-color: #059669; 
-      color: white; 
-      border: none; 
-      border-radius: 12px; 
-      font-size: 1rem; 
-      font-weight: 700; 
-      cursor: pointer; 
-      display: none; 
-      transition: background-color 0.2s;
-    }
-    button.re-recommend-btn:hover { background-color: #047857; }
 
     .result-box { 
       margin-top: 28px; 
@@ -199,12 +182,12 @@
 
   <header>
     <h1>🏃‍♂️ RunningMate</h1>
-    <p>AI 기반 맞춤형 날씨 경로 추천 및 실시간 피드백</p>
+    <p>AI 기반 맞춤형 근거리 장소 추천 및 경로 안내</p>
   </header>
 
   <main class="container">
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab(event, 'tab-weather')">🌤️ 날씨 & 추천 스팟</button>
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-weather')">🌤️ 날씨 & 스팟 추천</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-score')">💯 점수 & 피드백</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-analysis')">📊 사후 분석</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-board')">💬 자유 게시판</button>
@@ -248,16 +231,13 @@
       </div>
 
       <div class="form-group">
-        <label for="detailLocation">상세 위치 입력 (선택 사항)</label>
-        <input type="text" id="detailLocation" placeholder="예: 한양대 에리카, 부천시 중동, 여의도공원 2번 출구">
+        <label for="detailLocation">상세 현재 위치 (필수/권장)</label>
+        <input type="text" id="detailLocation" placeholder="예: 부천 보람마을, 한양대 에리카 정문, 여의도역 2번 출구">
       </div>
       
-      <p class="info-tip">💡 위치와 컨디션 정보가 정확할수록 더욱 맞춤화된 장소와 운동 조언이 제공됩니다.</p>
+      <p class="info-tip">💡 출발지 위치 정보를 정확히 적어주실수록 바로 인근의 근거리 공원이 추천됩니다.</p>
       
-      <div class="btn-group">
-        <button type="button" class="submit-btn" onclick="requestAI('weather', false)">맞춤 러닝 장소 추천받기</button>
-        <button type="button" id="reRecommendBtn" class="re-recommend-btn" onclick="requestAI('weather', true)">🔄 다른 장소 추천</button>
-      </div>
+      <button type="button" class="submit-btn" onclick="requestAI('weather')">가장 가까운 맞춤 러닝 장소 추천받기</button>
     </div>
 
     <div id="tab-score" class="tab-content">
@@ -298,7 +278,7 @@
       </div>
     </div>
 
-    <div id="loading" class="loading">🏃 AI가 러닝 데이터를 분석하고 있습니다...</div>
+    <div id="loading" class="loading">🏃 AI가 인근 러닝 장소 및 길찾기 경로를 분석하고 있습니다...</div>
     
     <div id="mapContainer" class="map-container">
       <div class="map-header">
@@ -313,8 +293,9 @@
 
   <script>
     let kakaoMap = null;
-    let mapMarker = null;
-    let excludePlaces = [];
+    let startMarker = null;
+    let spotMarker = null;
+    let routePolyline = null;
 
     const cityData = {
       "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
@@ -345,111 +326,37 @@
       }
     }
 
-    async function renderPathAndSpotMap(startName, spotName) {
-  const mapContainer = document.getElementById('mapContainer');
-  const mapView = document.getElementById('mapView');
-  const mapTitle = document.getElementById('mapTitle');
-  
-  mapContainer.style.display = 'block';
+    async function fetchCurrentWeather() {
+      const doVal = document.getElementById('regionDo').value;
+      const cityVal = document.getElementById('regionCity').value;
+      const statusInput = document.getElementById('weatherStatus');
 
-  if (!window.kakao || !window.kakao.maps) {
-    mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다.</p>";
-    return;
-  }
-
-  const ps = new kakao.maps.services.Places();
-
-  if (!kakaoMap) {
-    kakaoMap = new kakao.maps.Map(mapView, {
-      center: new kakao.maps.LatLng(37.5665, 126.9780),
-      level: 5
-    });
-  }
-
-  // 기존 마커 및 폴리라인 제거
-  if (startMarker) startMarker.setMap(null);
-  if (spotMarker) spotMarker.setMap(null);
-  if (routePolyline) routePolyline.setMap(null);
-
-  // 1. 출발지 장소 검색
-  ps.keywordSearch(startName, (startData, startStatus) => {
-    if (startStatus !== kakao.maps.services.Status.OK) {
-      // 출발지 검색 실패 시 추천 장소만 단일 표시
-      return renderSpotOnlyMap(spotName);
-    }
-
-    const startLat = parseFloat(startData[0].y);
-    const startLng = parseFloat(startData[0].x);
-    const startPos = new kakao.maps.LatLng(startLat, startLng);
-
-    // 2. 추천 러닝 장소 검색
-    ps.keywordSearch(spotName, async (spotData, spotStatus) => {
-      if (spotStatus === kakao.maps.services.Status.OK) {
-        const spotLat = parseFloat(spotData[0].y);
-        const spotLng = parseFloat(spotData[0].x);
-        const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
-
-        mapTitle.innerText = `🚩 출발지(${startName}) ➔ 📍 추천 장소(${spotName})`;
-
-        // 출발지 마커
-        startMarker = new kakao.maps.Marker({
-          position: startPos,
-          map: kakaoMap
-        });
-
-        // 도착지 마커
-        spotMarker = new kakao.maps.Marker({
-          position: spotPos,
-          map: kakaoMap
-        });
-
-        // 카카오모빌리티 / 도보 길찾기 API를 통한 실제 도로 경로(Polyline) 그리기
-        try {
-          // 카카오모빌리티 자동차/도보 길찾기 REST API 호출 (서버 백엔드 거쳐 요청 권장)
-          const routeRes = await fetch(`/api/route?origin=${startLng},${startLat}&destination=${spotLng},${spotLat}`);
-          const routeData = await routeRes.json();
-
-          if (routeData.path) {
-            const linePath = routeData.path.map(pt => new kakao.maps.LatLng(pt.lat, pt.lng));
-            
-            routePolyline = new kakao.maps.Polyline({
-              path: linePath,
-              strokeWeight: 5,
-              strokeColor: '#3b82f6',
-              strokeOpacity: 0.8,
-              strokeStyle: 'solid'
-            });
-            routePolyline.setMap(kakaoMap);
-          } else {
-            // 경로 API 미설정 시 기본 직선 fallback
-            drawFallbackLine(startPos, spotPos);
-          }
-        } catch (e) {
-          drawFallbackLine(startPos, spotPos);
-        }
-
-        // 두 지점이 모두 보이도록 지도 영역(Bounds) 재설정
-        const bounds = new kakao.maps.LatLngBounds();
-        bounds.extend(startPos);
-        bounds.extend(spotPos);
-        kakaoMap.setBounds(bounds);
-      } else {
-        alert('추천 장소를 지도에서 찾을 수 없습니다: ' + spotName);
+      if (!doVal || !cityVal) {
+        return alert('도/특별시와 시/구를 먼저 모두 선택해 주세요!');
       }
-    });
-  });
-}
 
-function drawFallbackLine(startPos, spotPos) {
-  routePolyline = new kakao.maps.Polyline({
-    path: [startPos, spotPos],
-    strokeWeight: 4,
-    strokeColor: '#3b82f6',
-    strokeOpacity: 0.7,
-    strokeStyle: 'dash'
-  });
-  routePolyline.setMap(kakaoMap);
-}
+      statusInput.value = "⏳ 실시간 날씨 정보를 가져오는 중...";
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'fetch_weather',
+            payload: { baseRegion: `${doVal} ${cityVal}`, cityVal }
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.weatherStatus) {
+          statusInput.value = data.weatherStatus;
+        } else {
+          statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+        }
+      } catch (e) {
+        statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
+      }
+    }
 
     function switchTab(evt, tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -464,8 +371,8 @@ function drawFallbackLine(startPos, spotPos) {
       document.getElementById('mapContainer').style.display = 'none';
     }
 
-    // 📍 추천 스팟 단일 위치 표시 로직 (선/경로 완전 제거)
-    function renderSpotOnlyMap(spotName) {
+    // 📍 출발지 ➔ 추천 스팟 경로 지도 표시 로직
+    async function renderPathMap(startName, spotName) {
       const mapContainer = document.getElementById('mapContainer');
       const mapView = document.getElementById('mapView');
       const mapTitle = document.getElementById('mapTitle');
@@ -473,7 +380,7 @@ function drawFallbackLine(startPos, spotPos) {
       mapContainer.style.display = 'block';
 
       if (!window.kakao || !window.kakao.maps) {
-        mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다. 키 및 플랫폼 등록을 확인해주세요.</p>";
+        mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다.</p>";
         return;
       }
 
@@ -486,52 +393,107 @@ function drawFallbackLine(startPos, spotPos) {
         });
       }
 
-      if (mapMarker) {
-        mapMarker.setMap(null);
-      }
+      // 기존 표시 요소 초기화
+      if (startMarker) startMarker.setMap(null);
+      if (spotMarker) spotMarker.setMap(null);
+      if (routePolyline) routePolyline.setMap(null);
 
-      // 키워드 검색으로 추천 장소 찾기
-      ps.keywordSearch(spotName, (data, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          const spotLat = parseFloat(data[0].y);
-          const spotLng = parseFloat(data[0].x);
-          const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
-
-          mapTitle.innerText = `📍 추천 러닝 장소: ${spotName}`;
-
-          // 단일 위치 마커 생성
-          mapMarker = new kakao.maps.Marker({
-            position: spotPos,
-            map: kakaoMap
-          });
-
-          // 인포윈도우 생성 (장소명 노출)
-          const infowindow = new kakao.maps.InfoWindow({
-            content: `<div style="padding:6px 12px;font-size:13px;font-weight:bold;color:#0f172a;">🏃‍♂️ ${spotName}</div>`
-          });
-          infowindow.open(kakaoMap, mapMarker);
-
-          kakaoMap.setCenter(spotPos);
-          kakaoMap.setLevel(4);
-        } else {
-          alert('카카오 지도에서 해당 장소를 찾을 수 없습니다: ' + spotName);
+      // 1. 출발지 장소 위치 찾기
+      ps.keywordSearch(startName, (startData, startStatus) => {
+        let startPos = null;
+        if (startStatus === kakao.maps.services.Status.OK) {
+          startPos = new kakao.maps.LatLng(parseFloat(startData[0].y), parseFloat(startData[0].x));
         }
+
+        // 2. 추천 장소 위치 찾기
+        ps.keywordSearch(spotName, async (spotData, spotStatus) => {
+          if (spotStatus === kakao.maps.services.Status.OK) {
+            const spotPos = new kakao.maps.LatLng(parseFloat(spotData[0].y), parseFloat(spotData[0].x));
+
+            // 추천 장소 마커 표시
+            spotMarker = new kakao.maps.Marker({ position: spotPos, map: kakaoMap });
+            
+            const infowindow = new kakao.maps.InfoWindow({
+              content: `<div style="padding:6px 12px;font-size:13px;font-weight:bold;color:#0f172a;">📍 ${spotName}</div>`
+            });
+            infowindow.open(kakaoMap, spotMarker);
+
+            // 출발지 위치도 확인된 경우 경로 연결
+            if (startPos) {
+              startMarker = new kakao.maps.Marker({ position: startPos, map: kakaoMap });
+              mapTitle.innerText = `🚩 출발지(${startName}) ➔ 📍 추천 장소(${spotName})`;
+
+              // 실제 길찾기 API 연동 (카카오모빌리티/보행자 API)
+              try {
+                const originStr = `${startPos.getLng()},${startPos.getLat()}`;
+                const destStr = `${spotPos.getLng()},${spotPos.getLat()}`;
+                
+                const routeRes = await fetch(`/api/generate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    type: 'get_route',
+                    payload: { origin: originStr, destination: destStr }
+                  })
+                });
+
+                const routeData = await routeRes.json();
+
+                if (routeData.path && routeData.path.length > 0) {
+                  const linePath = routeData.path.map(pt => new kakao.maps.LatLng(pt.lat, pt.lng));
+                  
+                  routePolyline = new kakao.maps.Polyline({
+                    path: linePath,
+                    strokeWeight: 5,
+                    strokeColor: '#3b82f6',
+                    strokeOpacity: 0.8,
+                    strokeStyle: 'solid'
+                  });
+                  routePolyline.setMap(kakaoMap);
+                } else {
+                  drawFallbackLine(startPos, spotPos);
+                }
+              } catch (e) {
+                drawFallbackLine(startPos, spotPos);
+              }
+
+              // 두 지점이 모두 보이도록 지도 범위 조정
+              const bounds = new kakao.maps.LatLngBounds();
+              bounds.extend(startPos);
+              bounds.extend(spotPos);
+              kakaoMap.setBounds(bounds);
+            } else {
+              // 출발지 없으면 스팟 중심으로 보여줌
+              mapTitle.innerText = `📍 추천 러닝 장소: ${spotName}`;
+              kakaoMap.setCenter(spotPos);
+              kakaoMap.setLevel(4);
+            }
+          } else {
+            alert('카카오 지도에서 해당 장소를 찾을 수 없습니다: ' + spotName);
+          }
+        });
       });
     }
 
-    async function requestAI(type, isReRecommend = false) {
+    function drawFallbackLine(startPos, spotPos) {
+      routePolyline = new kakao.maps.Polyline({
+        path: [startPos, spotPos],
+        strokeWeight: 4,
+        strokeColor: '#3b82f6',
+        strokeOpacity: 0.7,
+        strokeStyle: 'dash'
+      });
+      routePolyline.setMap(kakaoMap);
+    }
+
+    async function requestAI(type) {
       const loading = document.getElementById('loading');
       const resultBox = document.getElementById('result');
       const mapContainer = document.getElementById('mapContainer');
-      const reBtn = document.getElementById('reRecommendBtn');
       
       let payload = {};
 
       if (type === 'weather') {
-        if (!isReRecommend) {
-          excludePlaces = [];
-        }
-
         const doVal = document.getElementById('regionDo').value;
         const cityVal = document.getElementById('regionCity').value;
         const weatherStatus = document.getElementById('weatherStatus').value;
@@ -545,8 +507,7 @@ function drawFallbackLine(startPos, spotPos) {
           baseRegion: `${doVal} ${cityVal}`,
           weatherInfo: weatherStatus,
           userHealth: userHealth.trim() || '특별한 사항 없음(보통 컨디션)',
-          detailLocation: detailLocation.trim(),
-          excludeList: excludePlaces
+          detailLocation: detailLocation.trim()
         };
       } else if (type === 'score') {
         const weather = document.getElementById('scoreWeather').value;
@@ -577,13 +538,9 @@ function drawFallbackLine(startPos, spotPos) {
           resultBox.innerText = data.result;
           resultBox.style.display = 'block';
 
-          if (type === 'weather') {
-            reBtn.style.display = 'inline-block';
-            
-            if (data.spotName) {
-              excludePlaces.push(data.spotName);
-              renderSpotOnlyMap(data.spotName); // 경로 제거하고 단일 마커만 표기
-            }
+          if (type === 'weather' && data.spotName) {
+            const startLoc = payload.detailLocation || payload.baseRegion;
+            renderPathMap(startLoc, data.spotName);
           }
         } else {
           alert(data.error || '오류가 발생했습니다.');
@@ -626,7 +583,7 @@ function drawFallbackLine(startPos, spotPos) {
 
     const opinionsRef = collection(db, "opinions");
 
-    // 자유 게시판 글 작성
+    // 게시판 글 작성
     submitBtn.addEventListener('click', async () => {
       const content = opinionInput.value.trim();
 
@@ -654,7 +611,7 @@ function drawFallbackLine(startPos, spotPos) {
       }
     });
 
-    // 게시판 실시간 데이터 가져오기
+    // 실시간 게시글 수신
     const q = query(opinionsRef, orderBy("createdAt", "desc"));
 
     onSnapshot(q, (snapshot) => {
