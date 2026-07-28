@@ -9,8 +9,8 @@
 
   <style>
     :root {
-      --primary-color: #2563eb;
-      --primary-hover: #1d4ed8;
+      --primary-color: #4a6785;
+      --primary-hover: #37506d;
       --bg-color: #f1f5f9;
       --card-bg: #ffffff;
       --text-main: #0f172a;
@@ -34,7 +34,6 @@
     header h1 { color: var(--primary-color); font-size: 2.5rem; margin-bottom: 8px; font-weight: 800; }
     header p { color: var(--text-sub); font-size: 1.1rem; }
 
-    /* 전체 컨테이너 폭 확장 (650px -> 1024px) */
     .container { 
       width: 100%; 
       max-width: 1024px; 
@@ -80,24 +79,24 @@
     .select-row { display: flex; gap: 12px; }
     .select-row select { flex: 1; }
 
-    /* 🌤️ 날씨 위젯 스타일 (첨부한 이미지의 블루 그라데이션 디자인) */
+    /* 🌤️ 날씨 카드 (요청하신 날씨 앱 이미지의 차콜/뮤트 블루 색감 반영) */
     .weather-card-box {
-      background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+      background: linear-gradient(135deg, #4b6282 0%, #5a7395 50%, #7287a5 100%);
       border-radius: 16px;
       padding: 24px;
       color: white;
       margin-bottom: 24px;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 8px 20px rgba(75, 98, 130, 0.25);
     }
-    .weather-card-box label { color: #eff6ff; font-size: 1.05rem; }
+    .weather-card-box label { color: #f1f5f9; font-size: 1.05rem; }
     
     .weather-fetch-btn {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.18);
       color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 10px;
       font-weight: 700;
       font-size: 0.95rem;
@@ -106,19 +105,19 @@
       transition: all 0.2s;
     }
     .weather-fetch-btn:hover {
-      background-color: rgba(255, 255, 255, 0.35);
+      background-color: rgba(255, 255, 255, 0.3);
     }
 
     .weather-output-input {
       background-color: rgba(255, 255, 255, 0.15) !important;
-      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
       color: #ffffff !important;
       font-weight: 600;
       font-size: 1.05rem;
     }
-    .weather-output-input::placeholder { color: #dbeafe; }
+    .weather-output-input::placeholder { color: #cbd5e1; }
 
-    .info-tip { font-size: 0.9rem; color: #2563eb; margin-bottom: 24px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+    .info-tip { font-size: 0.9rem; color: var(--primary-color); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
 
     button.submit-btn { 
       width: 100%; 
@@ -138,7 +137,7 @@
     .result-box { 
       margin-top: 28px; 
       padding: 24px; 
-      background-color: #eff6ff; 
+      background-color: #f1f5f9; 
       border-radius: 12px; 
       border-left: 6px solid var(--primary-color); 
       white-space: pre-wrap; 
@@ -147,9 +146,8 @@
       display: none; 
     }
     
-    /* 지도 높이 및 크기 확장 */
     .map-container { margin-top: 24px; display: none; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .map-header { background: #0f172a; color: white; padding: 14px 20px; font-size: 0.95rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .map-header { background: #334155; color: white; padding: 14px 20px; font-size: 0.95rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
     #mapView { width: 100%; height: 450px; background-color: #f1f5f9; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; margin-top: 24px; display: none; }
@@ -388,7 +386,7 @@
                 mapPolyline = new kakao.maps.Polyline({
                   path: [startPos, spotPos],
                   strokeWeight: 5,
-                  strokeColor: '#2563eb',
+                  strokeColor: '#4a6785',
                   strokeOpacity: 0.8,
                   strokeStyle: 'solid'
                 });
