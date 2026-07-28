@@ -60,9 +60,9 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(apiKey);
     let model;
     try {
-      model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     } catch (e) {
-      model = genAI.getGenerativeModel({ model: 'models/gemini-1.5-flash' });
+      model = genAI.getGenerativeModel({ model: 'models/gemini-3.1-flash-lite' });
     }
 
     let prompt = '';
