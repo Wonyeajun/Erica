@@ -20,42 +20,15 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    body { 
-      background-color: var(--bg-color); 
-      color: var(--text-main); 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      min-height: 100vh; 
-      padding: 40px 20px; 
-    }
-    
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 20px; }
     header { text-align: center; margin-bottom: 32px; }
     header h1 { color: var(--primary-color); font-size: 2.5rem; margin-bottom: 8px; font-weight: 800; }
     header p { color: var(--text-sub); font-size: 1.1rem; }
 
-    .container { 
-      width: 100%; 
-      max-width: 1024px; 
-      background: var(--card-bg); 
-      border-radius: 20px; 
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-      border: 1px solid var(--border-color); 
-      overflow: hidden; 
-    }
+    .container { width: 100%; max-width: 1024px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-color); overflow: hidden; }
 
     .tabs { display: flex; border-bottom: 1px solid var(--border-color); background-color: #f8fafc; }
-    .tab-btn { 
-      flex: 1; 
-      padding: 18px 12px; 
-      border: none; 
-      background: none; 
-      font-weight: 700; 
-      font-size: 1.05rem; 
-      color: var(--text-sub); 
-      cursor: pointer; 
-      transition: all 0.2s; 
-    }
+    .tab-btn { flex: 1; padding: 18px 12px; border: none; background: none; font-weight: 700; font-size: 1.05rem; color: var(--text-sub); cursor: pointer; transition: all 0.2s; }
     .tab-btn.active { color: var(--primary-color); background-color: var(--card-bg); border-bottom: 4px solid var(--primary-color); }
     
     .tab-content { display: none; padding: 36px; }
@@ -63,149 +36,34 @@
 
     .form-group { margin-bottom: 22px; }
     label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; color: var(--text-main); }
-    input, select, textarea { 
-      width: 100%; 
-      padding: 14px 16px; 
-      border: 1px solid var(--border-color); 
-      border-radius: 10px; 
-      font-size: 1rem; 
-      outline: none; 
-      background-color: white; 
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--primary-color); }
-    textarea { resize: vertical; min-height: 120px; }
+    input, select, textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1rem; outline: none; background-color: white; }
 
     .select-row { display: flex; gap: 12px; }
     .select-row select { flex: 1; }
 
-    /* 🌤️ 날씨 카드 (뮤트 블루 톤) */
-    .weather-card-box {
-      background: linear-gradient(135deg, #4b6282 0%, #5a7395 50%, #7287a5 100%);
-      border-radius: 16px;
-      padding: 24px;
-      color: white;
-      margin-bottom: 24px;
-      box-shadow: 0 8px 20px rgba(75, 98, 130, 0.25);
-    }
-    .weather-card-box label { color: #f1f5f9; font-size: 1.05rem; }
+    .weather-card-box { background: linear-gradient(135deg, #4b6282 0%, #5a7395 50%, #7287a5 100%); border-radius: 16px; padding: 24px; color: white; margin-bottom: 24px; }
+    .weather-card-box label { color: #f1f5f9; }
     
-    .weather-fetch-btn {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background-color: rgba(255, 255, 255, 0.18);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
-      transition: all 0.2s;
-    }
-    .weather-fetch-btn:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-    }
+    .weather-fetch-btn { width: 100%; padding: 12px; margin-top: 10px; background-color: rgba(255, 255, 255, 0.18); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 10px; font-weight: 700; cursor: pointer; }
 
-    .weather-output-input {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-      color: #ffffff !important;
-      font-weight: 600;
-      font-size: 1.05rem;
-    }
-    .weather-output-input::placeholder { color: #cbd5e1; }
+    .btn-group { display: flex; gap: 12px; }
 
-    .info-tip { font-size: 0.9rem; color: var(--primary-color); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+    button.submit-btn { flex: 2; padding: 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+    button.re-recommend-btn { flex: 1; padding: 16px; background-color: #059669; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: none; }
+    button.re-recommend-btn:hover { background-color: #047857; }
 
-    button.submit-btn { 
-      width: 100%; 
-      padding: 16px; 
-      background-color: var(--primary-color); 
-      color: white; 
-      border: none; 
-      border-radius: 12px; 
-      font-size: 1.1rem; 
-      font-weight: 700; 
-      cursor: pointer; 
-      transition: background-color 0.2s, transform 0.1s; 
-    }
-    button.submit-btn:hover { background-color: var(--primary-hover); }
-    button.submit-btn:active { transform: scale(0.99); }
-
-    .result-box { 
-      margin-top: 28px; 
-      padding: 24px; 
-      background-color: #f1f5f9; 
-      border-radius: 12px; 
-      border-left: 6px solid var(--primary-color); 
-      white-space: pre-wrap; 
-      line-height: 1.7; 
-      font-size: 1.05rem; 
-      display: none; 
-    }
+    .result-box { margin-top: 28px; padding: 24px; background-color: #f1f5f9; border-radius: 12px; border-left: 6px solid var(--primary-color); white-space: pre-wrap; line-height: 1.7; display: none; }
     
-    .map-container { margin-top: 24px; display: none; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .map-container { margin-top: 24px; display: none; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); }
     .map-header { background: #334155; color: white; padding: 14px 20px; font-size: 0.95rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
     #mapView { width: 100%; height: 450px; background-color: #f1f5f9; }
 
     .loading { text-align: center; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; margin-top: 24px; display: none; }
 
-    /* 💬 게시판 전용 스타일 */
-    .input-section {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-    .input-section textarea {
-      flex: 1;
-      height: 90px;
-    }
-    .input-section button {
-      width: 120px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .input-section button:hover {
-      background-color: var(--primary-hover);
-    }
-    .board-list {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .post-card {
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      background-color: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .post-content {
-      font-size: 1rem;
-      color: var(--text-main);
-      white-space: pre-wrap;
-      word-break: break-all;
-      line-height: 1.6;
-    }
-    .post-date {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      margin-top: 10px;
-    }
-    .empty-msg {
-      text-align: center;
-      color: #94a3b8;
-      padding: 40px 0;
-      font-size: 1rem;
-    }
+    /* 지도 범례 */
+    .map-legend { display: flex; gap: 16px; background: #1e293b; color: #f8fafc; padding: 8px 20px; font-size: 0.85rem; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-color { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
   </style>
 </head>
 <body>
@@ -218,8 +76,6 @@
   <main class="container">
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab(event, 'tab-weather')">🌤️ 날씨 & 경로 추천</button>
-      <button class="tab-btn" onclick="switchTab(event, 'tab-score')">💯 점수 & 피드백</button>
-      <button class="tab-btn" onclick="switchTab(event, 'tab-analysis')">📊 사후 분석</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-board')">💬 자유 게시판</button>
     </div>
 
@@ -230,90 +86,43 @@
           <div class="select-row">
             <select id="regionDo" onchange="updateCitySelect()">
               <option value="">도/특별시 선택</option>
-              <option value="서울특별시">서울특별시</option>
               <option value="경기도">경기도</option>
-              <option value="인천광역시">인천광역시</option>
-              <option value="강원특별자치도">강원특별자치도</option>
-              <option value="충청북도">충청북도</option>
-              <option value="충청남도">충청남도</option>
-              <option value="전북특별자치도">전북특별자치도</option>
-              <option value="전라남도">전라남도</option>
-              <option value="경상북도">경상북도</option>
-              <option value="경상남도">경상남도</option>
-              <option value="제주특별자치도">제주특별자치도</option>
+              <option value="서울특별시">서울특별시</option>
             </select>
-            <select id="regionCity">
-              <option value="">시/구 선택</option>
-            </select>
+            <select id="regionCity"><option value="">시/구 선택</option></select>
           </div>
           <button type="button" class="weather-fetch-btn" onclick="fetchCurrentWeather()">🌤️ 선택 지역 실시간 날씨 불러오기</button>
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
           <label for="weatherStatus">조회된 날씨 정보</label>
-          <input type="text" id="weatherStatus" class="weather-output-input" placeholder="위에서 지역 선택 후 [날씨 불러오기]를 눌러주세요" readonly>
+          <input type="text" id="weatherStatus" readonly placeholder="날씨를 불러와주세요">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="userHealth">신체정보 / 컨디션</label>
-        <input type="text" id="userHealth" placeholder="예: 평소 심박수, 피곤함 정도, 무릎 통증 약간 있음 등">
+        <label for="detailLocation">상세 위치 입력 (출발지)</label>
+        <input type="text" id="detailLocation" placeholder="예: 보람마을 아주아파트, 한양대 에리카 등">
       </div>
 
-      <div class="form-group">
-        <label for="detailLocation">상세 위치 입력 (선택 사항)</label>
-        <input type="text" id="detailLocation" placeholder="예: 한양대 에리카, 부천시 중동, 여의도공원 2번 출구">
-      </div>
-      
-      <p class="info-tip">💡 위치와 컨디션 정보가 정확할수록 더욱 맞춤화된 경로와 운동 조언이 제공됩니다.</p>
-      
-      <button type="button" class="submit-btn" onclick="requestAI('weather')">맞춤 경로 추천받기</button>
-    </div>
-
-    <div id="tab-score" class="tab-content">
-      <div class="form-group">
-        <label for="scoreWeather">오늘의 날씨</label>
-        <input type="text" id="scoreWeather" placeholder="예: 28도, 약간 무덥고 습함">
-      </div>
-      <div class="form-group">
-        <label for="scoreHealth">신체 정보 / 컨디션</label>
-        <input type="text" id="scoreHealth" placeholder="예: 심박수 정상, 약간 피로함">
-      </div>
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label for="scoreInput">오늘의 러닝 목표</label>
-        <input type="text" id="scoreInput" placeholder="예: 5km 가볍게 조깅하기">
-      </div>
-      <button type="button" class="submit-btn" onclick="requestAI('score')">점수 & 피드백 측정하기</button>
-    </div>
-
-    <div id="tab-analysis" class="tab-content">
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label for="analysisInput">러닝 완료 기록 데이터</label>
-        <textarea id="analysisInput" placeholder="예: 거리 7km, 시간 40분, 평균 페이스 5'42&quot;, 평균 심박수 155bpm"></textarea>
-      </div>
-      <button type="button" class="submit-btn" onclick="requestAI('analysis')">러닝 분석 리포트 생성</button>
-    </div>
-
-    <div id="tab-board" class="tab-content">
-      <div class="form-group">
-        <label>💬 러닝 소통 게시판</label>
-        <div class="input-section">
-          <textarea id="opinionInput" placeholder="러닝 후기나 의견을 자유롭게 남겨주세요..."></textarea>
-          <button id="submitBtn">등록</button>
-        </div>
-      </div>
-
-      <div id="boardList" class="board-list">
-        <div class="empty-msg">게시글을 불러오는 중입니다...</div>
+      <div class="btn-group">
+        <button type="button" class="submit-btn" onclick="requestAI('weather', false)">맞춤 코스 추천받기</button>
+        <button type="button" id="reRecommendBtn" class="re-recommend-btn" onclick="requestAI('weather', true)">🔄 다른 장소 추천받기</button>
       </div>
     </div>
 
-    <div id="loading" class="loading">🏃 AI가 러닝 데이터를 분석하고 있습니다...</div>
-    
+    <div id="loading" class="loading">🏃 AI가 최적의 러닝 코스를 분석하고 있습니다...</div>
+
     <div id="mapContainer" class="map-container">
       <div class="map-header">
-        <span id="mapTitle">📍 RunningMate 카카오 지도 세부 경로</span>
-        <span style="font-size:0.8rem; color:#94a3b8;">Kakao Map API</span>
+        <span id="mapTitle">📍 RunningMate 러닝 코스 지도</span>
+        <span style="font-size:0.8rem; color:#cbd5e1;">Kakao Map API</span>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-color" style="background:#3b82f6;"></span> 출발지</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ef4444;"></span> 러닝 추천 장소</div>
+        <div class="legend-item"><span style="color:#94a3b8;">---</span> 이동 경로(점선)</div>
+        <div class="legend-item"><span style="color:#ef4444;">━━</span> 러닝 코스 루프(실선)</div>
       </div>
       <div id="mapView"></div>
     </div>
@@ -324,216 +133,39 @@
   <script>
     let kakaoMap = null;
     let mapMarkers = [];
-    let mapPolyline = null;
-
-    const cityData = {
-      "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
-      "경기도": ["수원시", "성남시", "고양시", "용인시", "부천시", "안산시", "남양주시", "안양시", "화성시", "평택시", "의정부시", "파주시", "시흥시", "김포시", "광명시", "광주시", "군포시", "이천시", "오산시", "하남시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"],
-      "인천광역시": ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"],
-      "강원특별자치도": ["춘천시", "원주시", "강릉시", "동해시", "태백시", "속초시", "삼척시"],
-      "충청북도": ["청주시", "충주시", "제천시"],
-      "충청남도": ["천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "당진시"],
-      "전북특별자치도": ["전주시", "군산시", "익산시", "정읍시", "남원시", "김제시"],
-      "전라남도": ["목포시", "여수시", "순천시", "나주시", "광양시"],
-      "경상북도": ["포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시", "문경시", "경산시"],
-      "경상남도": ["창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시"],
-      "제주특별자치도": ["제주시", "서귀포시"]
-    };
-
-    function updateCitySelect() {
-      const doSelect = document.getElementById('regionDo').value;
-      const citySelect = document.getElementById('regionCity');
-      citySelect.innerHTML = '<option value="">시/구 선택</option>';
-
-      if (doSelect && cityData[doSelect]) {
-        cityData[doSelect].forEach(city => {
-          const opt = document.createElement('option');
-          opt.value = city;
-          opt.innerText = city;
-          citySelect.appendChild(opt);
-        });
-      }
-    }
-
-    async function fetchCurrentWeather() {
-      const doVal = document.getElementById('regionDo').value;
-      const cityVal = document.getElementById('regionCity').value;
-      const statusInput = document.getElementById('weatherStatus');
-
-      if (!doVal || !cityVal) {
-        return alert('도/특별시와 시/구를 먼저 모두 선택해 주세요!');
-      }
-
-      statusInput.value = "⏳ 실시간 날씨 정보를 가져오는 중...";
-
-      try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'fetch_weather',
-            payload: { baseRegion: `${doVal} ${cityVal}`, cityVal }
-          })
-        });
-
-        const data = await response.json();
-        if (response.ok && data.weatherStatus) {
-          statusInput.value = data.weatherStatus;
-        } else {
-          statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
-        }
-      } catch (e) {
-        statusInput.value = `${doVal} ${cityVal} / 맑음, 기온 22°C, 습도 45%`;
-      }
-    }
-
-    function switchTab(evt, tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-      if (evt && evt.target) {
-        evt.target.classList.add('active');
-      }
-      
-      document.getElementById('result').style.display = 'none';
-      document.getElementById('mapContainer').style.display = 'none';
-    }
+    let mapPolylines = [];
+    let excludePlaces = []; // 이전에 추천받은 장소들을 모아두는 목록
 
     function clearMap() {
-      mapMarkers.forEach(marker => marker.setMap(null));
+      mapMarkers.forEach(m => m.setMap(null));
+      mapPolylines.forEach(p => p.setMap(null));
       mapMarkers = [];
-      if (mapPolyline) {
-        mapPolyline.setMap(null);
-        mapPolyline = null;
-      }
+      mapPolylines = [];
     }
 
-    function renderKakaoMap(startQuery, spotName) {
-      const mapContainer = document.getElementById('mapContainer');
-      const mapView = document.getElementById('mapView');
-      const mapTitle = document.getElementById('mapTitle');
-      
-      mapContainer.style.display = 'block';
-
-      if (!window.kakao || !window.kakao.maps) {
-        mapView.innerHTML = "<p style='padding:20px; color:#ef4444;'>카카오맵 SDK를 로드하지 못했습니다. 키 및 플랫폼 등록을 확인해주세요.</p>";
-        return;
-      }
-
-      const ps = new kakao.maps.services.Places();
-
-      if (!kakaoMap) {
-        kakaoMap = new kakao.maps.Map(mapView, {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 4
-        });
-      }
-
-      clearMap();
-
-      if (startQuery && startQuery.length > 0) {
-        mapTitle.innerText = "📍 [이동 길찾기 + 코스] 출발지 ➔ 추천 러닝장소";
-
-        ps.keywordSearch(startQuery, (startData, status1) => {
-          if (status1 === kakao.maps.services.Status.OK) {
-            const startLat = startData[0].y;
-            const startLng = startData[0].x;
-            const startPos = new kakao.maps.LatLng(startLat, startLng);
-
-            const startMarker = new kakao.maps.Marker({ position: startPos, map: kakaoMap });
-            mapMarkers.push(startMarker);
-
-            ps.keywordSearch(spotName, (spotData, status2) => {
-              if (status2 === kakao.maps.services.Status.OK) {
-                const spotLat = spotData[0].y;
-                const spotLng = spotData[0].x;
-                const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
-
-                const spotMarker = new kakao.maps.Marker({ position: spotPos, map: kakaoMap });
-                mapMarkers.push(spotMarker);
-
-                mapPolyline = new kakao.maps.Polyline({
-                  path: [startPos, spotPos],
-                  strokeWeight: 5,
-                  strokeColor: '#4a6785',
-                  strokeOpacity: 0.8,
-                  strokeStyle: 'solid'
-                });
-                mapPolyline.setMap(kakaoMap);
-
-                const bounds = new kakao.maps.LatLngBounds();
-                bounds.extend(startPos);
-                bounds.extend(spotPos);
-                kakaoMap.setBounds(bounds);
-              } else {
-                kakaoMap.setCenter(startPos);
-              }
-            });
-          } else {
-            renderSingleSpot(ps, spotName);
-          }
-        });
-      } else {
-        mapTitle.innerText = "📍 [러닝 코스 지도] 추천 러닝 장소";
-        renderSingleSpot(ps, spotName);
-      }
-    }
-
-    function renderSingleSpot(ps, spotName) {
-      ps.keywordSearch(spotName, (data, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          const lat = data[0].y;
-          const lng = data[0].x;
-          const pos = new kakao.maps.LatLng(lat, lng);
-
-          const marker = new kakao.maps.Marker({ position: pos, map: kakaoMap });
-          mapMarkers.push(marker);
-
-          kakaoMap.setCenter(pos);
-          kakaoMap.setLevel(4);
-        }
-      });
-    }
-
-    async function requestAI(type) {
+    async function requestAI(type, isReRecommend = false) {
       const loading = document.getElementById('loading');
       const resultBox = document.getElementById('result');
-      const mapContainer = document.getElementById('mapContainer');
-      
-      let payload = {};
+      const reBtn = document.getElementById('reRecommendBtn');
 
-      if (type === 'weather') {
-        const doVal = document.getElementById('regionDo').value;
-        const cityVal = document.getElementById('regionCity').value;
-        const weatherStatus = document.getElementById('weatherStatus').value;
-        const userHealth = document.getElementById('userHealth').value;
-        const detailLocation = document.getElementById('detailLocation').value;
-
-        if (!doVal || !cityVal) return alert('지역(도/시 또는 서울/구)을 선택해 주세요!');
-        if (!weatherStatus) return alert('[실시간 날씨 불러오기] 버튼을 눌러 날씨를 조회해 주세요!');
-
-        payload = {
-          baseRegion: `${doVal} ${cityVal}`,
-          weatherInfo: weatherStatus,
-          userHealth: userHealth.trim() || '특별한 사항 없음(보통 컨디션)',
-          detailLocation: detailLocation.trim()
-        };
-      } else if (type === 'score') {
-        const weather = document.getElementById('scoreWeather').value;
-        const healthInfo = document.getElementById('scoreHealth').value;
-        const scoreInput = document.getElementById('scoreInput').value;
-        if (!weather || !healthInfo || !scoreInput) return alert('모든 정보 항목을 입력해주세요!');
-        payload = { weather, healthInfo, scoreInput };
-      } else if (type === 'analysis') {
-        const analysisInput = document.getElementById('analysisInput').value;
-        if (!analysisInput) return alert('러닝 기록을 입력해주세요!');
-        payload = { analysisInput };
+      if (!isReRecommend) {
+        excludePlaces = []; // 처음 '맞춤 코스 추천받기'를 누른 경우 제외 목록 초기화
       }
+
+      const doVal = document.getElementById('regionDo').value;
+      const cityVal = document.getElementById('regionCity').value;
+      const detailLocation = document.getElementById('detailLocation').value;
+
+      if (!doVal || !cityVal) return alert('지역을 선택해주세요!');
+
+      const payload = {
+        baseRegion: `${doVal} ${cityVal}`,
+        detailLocation: detailLocation.trim(),
+        excludeList: excludePlaces // 백엔드(generate.js)로 이전 추천 장소 목록 전달
+      };
 
       loading.style.display = 'block';
       resultBox.style.display = 'none';
-      mapContainer.style.display = 'none';
 
       try {
         const response = await fetch('/api/generate', {
@@ -547,131 +179,126 @@
         if (response.ok) {
           resultBox.innerText = data.result;
           resultBox.style.display = 'block';
+          reBtn.style.display = 'inline-block'; // '다른 장소 추천받기' 버튼 노출
 
-          if (type === 'weather' && data.spotName) {
+          // AI가 파싱해준 장소명이 있는 경우
+          if (data.spotName) {
+            excludePlaces.push(data.spotName); // 제외 목록에 등록
             const startQuery = payload.detailLocation ? `${payload.baseRegion} ${payload.detailLocation}` : '';
-            renderKakaoMap(startQuery, data.spotName);
+            renderDetailedRunningMap(startQuery, data.spotName);
           }
-        } else {
-          alert(data.error || '오류가 발생했습니다.');
         }
       } catch (err) {
-        alert('서버 통신 실패: ' + err.message);
+        alert('추천을 불러오는 중 오류 발생: ' + err.message);
       } finally {
         loading.style.display = 'none';
       }
     }
-  </script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-      getFirestore, 
-      collection, 
-      addDoc, 
-      query, 
-      orderBy, 
-      onSnapshot, 
-      serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // 🗺️ 지도 시각화 (출발지 점선 + 러닝코스 루프 실선)
+    function renderDetailedRunningMap(startQuery, spotName) {
+      const mapContainer = document.getElementById('mapContainer');
+      const mapView = document.getElementById('mapView');
+      mapContainer.style.display = 'block';
 
-    // 전달해주신 Firebase 설정값 반영
-    const firebaseConfig = {
-      apiKey: "AIzaSyDx5LyUV4qwhSjyN0C5rKyBUdL9G9dVTkA",
-      authDomain: "erica-f612e.firebaseapp.com",
-      projectId: "erica-f612e",
-      storageBucket: "erica-f612e.firebasestorage.app",
-      messagingSenderId: "559496736323",
-      appId: "1:559496736323:web:2f92d9c1fcf0ec7c356ef6"
-    };
+      if (!window.kakao || !window.kakao.maps) return;
+      const ps = new kakao.maps.services.Places();
 
-    // Firebase 초기화
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const opinionInput = document.getElementById('opinionInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const boardList = document.getElementById('boardList');
-
-    const opinionsRef = collection(db, "opinions");
-
-    // 1. 등록 버튼 클릭 시 Firestore 저장
-    submitBtn.addEventListener('click', async () => {
-      const content = opinionInput.value.trim();
-
-      if (!content) {
-        alert('의견을 입력해 주세요!');
-        return;
-      }
-
-      try {
-        submitBtn.disabled = true;
-        submitBtn.innerText = '등록 중...';
-
-        await addDoc(opinionsRef, {
-          content: content,
-          createdAt: serverTimestamp()
+      if (!kakaoMap) {
+        kakaoMap = new kakao.maps.Map(mapView, {
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
+          level: 4
         });
-
-        opinionInput.value = '';
-      } catch (error) {
-        console.error("의견 등록 실패:", error);
-        alert("등록 중 오류가 발생했습니다: " + error.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = '등록';
-      }
-    });
-
-    // 2. 최신순(createdAt desc) 실시간 데이터 수신 및 출력
-    const q = query(opinionsRef, orderBy("createdAt", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-      boardList.innerHTML = '';
-
-      if (snapshot.empty) {
-        boardList.innerHTML = '<div class="empty-msg">등록된 의견이 없습니다. 첫 의견을 남겨보세요!</div>';
-        return;
       }
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        
-        let dateString = '';
-        if (data.createdAt) {
-          const date = data.createdAt.toDate();
-          dateString = date.toLocaleString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
+      clearMap();
+      const bounds = new kakao.maps.LatLngBounds();
+
+      // 빨간색 마커 이미지 (러닝 추천 장소용)
+      const redMarkerSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'; 
+      const markerSize = new kakao.maps.Size(31, 35);
+      const redMarkerImage = new kakao.maps.MarkerImage(redMarkerSrc, markerSize);
+
+      // 1. 러닝 추천 장소 키워드 검색
+      ps.keywordSearch(spotName, (spotData, spotStatus) => {
+        if (spotStatus === kakao.maps.services.Status.OK) {
+          const spotLat = parseFloat(spotData[0].y);
+          const spotLng = parseFloat(spotData[0].x);
+          const spotPos = new kakao.maps.LatLng(spotLat, spotLng);
+
+          // 러닝 장소 마커 (빨간색)
+          const spotMarker = new kakao.maps.Marker({
+            position: spotPos,
+            map: kakaoMap,
+            image: redMarkerImage,
+            title: spotName
           });
-        } else {
-          dateString = '방금 전';
+          mapMarkers.push(spotMarker);
+          bounds.extend(spotPos);
+
+          // 🏃‍♂️ 추천 장소 내부 러닝 루프 코스 생성 (빨간색 실선)
+          const loopPath = generateRunningLoop(spotLat, spotLng, 0.0025);
+          const runningPolyline = new kakao.maps.Polyline({
+            path: loopPath,
+            strokeWeight: 6,
+            strokeColor: '#EF4444',
+            strokeOpacity: 0.9,
+            strokeStyle: 'solid'
+          });
+          runningPolyline.setMap(kakaoMap);
+          mapPolylines.push(runningPolyline);
+
+          // 2. 출발지가 있는 경우 이동 경로(점선) 연결
+          if (startQuery) {
+            ps.keywordSearch(startQuery, (startData, startStatus) => {
+              if (startStatus === kakao.maps.services.Status.OK) {
+                const startPos = new kakao.maps.LatLng(startData[0].y, startData[0].x);
+
+                // 출발지 마커 (기본 파란색)
+                const startMarker = new kakao.maps.Marker({
+                  position: startPos,
+                  map: kakaoMap,
+                  title: '출발지'
+                });
+                mapMarkers.push(startMarker);
+                bounds.extend(startPos);
+
+                // 이동 경로 (회색 점선)
+                const accessPolyline = new kakao.maps.Polyline({
+                  path: [startPos, spotPos],
+                  strokeWeight: 4,
+                  strokeColor: '#64748B',
+                  strokeOpacity: 0.7,
+                  strokeStyle: 'dash'
+                });
+                accessPolyline.setMap(kakaoMap);
+                mapPolylines.push(accessPolyline);
+
+                kakaoMap.setBounds(bounds);
+              } else {
+                kakaoMap.setCenter(spotPos);
+              }
+            });
+          } else {
+            kakaoMap.setCenter(spotPos);
+            kakaoMap.setLevel(4);
+          }
         }
-
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.innerHTML = `
-          <div class="post-content">${escapeHtml(data.content)}</div>
-          <div class="post-date">${dateString}</div>
-        `;
-
-        boardList.appendChild(postCard);
       });
-    }, (error) => {
-      console.error("글 목록 불러오기 실패:", error);
-      boardList.innerHTML = '<div class="empty-msg" style="color: #ef4444;">목록을 불러오는 중 오류가 발생했습니다. (Firestore 규칙을 확인해주세요)</div>';
-    });
+    }
 
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    // 장소 기준 타원형 러닝 루프 좌표 생성 함수
+    function generateRunningLoop(lat, lng, radius) {
+      const path = [];
+      const numPoints = 8;
+      for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * (2 * Math.PI);
+        const dLat = radius * Math.cos(angle);
+        const dLng = (radius * 1.3) * Math.sin(angle);
+        path.push(new kakao.maps.LatLng(lat + dLat, lng + dLng));
+      }
+      path.push(path[0]);
+      return path;
     }
   </script>
 </body>
