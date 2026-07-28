@@ -83,7 +83,7 @@
 
     <div id="tab-weather" class="tab-content active">
       <div class="form-group">
-        <label>지역 선택 (최소 기준)</label>
+        <label>지역 선택</label>
         <div class="select-row">
           <select id="regionDo" onchange="updateCitySelect()">
             <option value="">도/특별시 선택</option>
@@ -112,11 +112,16 @@
       </div>
 
       <div class="form-group">
-        <label for="detailLocation">상세 위치 입력 (선택 사항 - 최대 모드)</label>
+        <label for="userHealth">신체정보 / 컨디션</label>
+        <input type="text" id="userHealth" placeholder="예: 평소 심박수, 피곤함 정도, 무릎 통증 약간 있음 등">
+      </div>
+
+      <div class="form-group">
+        <label for="detailLocation">상세 위치 입력 (선택 사항)</label>
         <input type="text" id="detailLocation" placeholder="예: 한양대 에리카, 부천시 중동, 여의도공원 2번 출구">
       </div>
       
-      <p class="info-tip">💡 위치 정보가 정확할수록 더욱 상세한 맞춤 이동 경로가 제공됩니다.</p>
+      <p class="info-tip">💡 위치와 컨디션 정보가 정확할수록 더욱 맞춤화된 경로와 운동 조언이 제공됩니다.</p>
       
       <button type="button" class="submit-btn" onclick="requestAI('weather')">맞춤 경로 추천받기</button>
     </div>
@@ -248,15 +253,17 @@
         const doVal = document.getElementById('regionDo').value;
         const cityVal = document.getElementById('regionCity').value;
         const weatherStatus = document.getElementById('weatherStatus').value;
+        const userHealth = document.getElementById('userHealth').value;
         const detailLocation = document.getElementById('detailLocation').value;
 
-        if (!doVal || !cityVal) return alert('최소 지역(도/시 또는 서울/구)을 선택해 주세요!');
+        if (!doVal || !cityVal) return alert('지역(도/시 또는 서울/구)을 선택해 주세요!');
         if (!weatherStatus) return alert('[실시간 날씨 불러오기] 버튼을 눌러 날씨를 조회해 주세요!');
 
         payload = {
           baseRegion: `${doVal} ${cityVal}`,
-          detailLocation: detailLocation.trim(),
-          weatherInfo: weatherStatus
+          weatherInfo: weatherStatus,
+          userHealth: userHealth.trim() || '특별한 사항 없음(보통 컨디션)',
+          detailLocation: detailLocation.trim()
         };
       } else if (type === 'score') {
         const weather = document.getElementById('scoreWeather').value;
